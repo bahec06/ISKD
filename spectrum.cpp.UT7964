@@ -1,0 +1,74 @@
+#include "spectrum.h"
+
+Spectrum::Spectrum()
+{
+
+}
+
+double* Spectrum::get_const_spectrum(double q){
+    double spectrum_array[8192] = {0};
+    int point = (int)(q/dQ);
+    spectrum_array[point] = 1/q;
+
+    return spectrum_array;
+}
+
+double* Spectrum::get_uni_spectrum(double qmin, double qmax) {
+    double spectrum_array[8192] = {0};
+    double n = 1/(qmax-qmin);
+    int first_point = (int)(qmin/dQ);
+    int second_point = (int)(qmax/dQ);
+    for(int i = first_point; i<= second_point; i++) {
+        spectrum_array[i] = n;
+    }
+
+    return spectrum_array;
+}
+
+double* Spectrum::get_gauss_spectrum(double qmean, double sigma) {
+    double spectrum_array[8192] = {0};
+    for(int i = 0; i<= sizeof(spectrum_array); i++) {
+        spectrum_array[i] = (1/(sigma*qSqrt(2*M_PI)))*qExp(-(qPow((i*dQ-qmean),2))/(2*sigma));
+    }
+
+    return spectrum_array;
+}
+
+uint16_t* Spectrum::get_int_spectrum(double dbl_spectrum[]) {
+
+    double quantile_array[8192] = {0};
+    double temp_array[8192] = {0};
+    uint16_t reverse_array[8192] = {0};
+
+    for(size_t i = 1; i<sizeof(dbl_spectrum); i++) {
+        quantile_array[i] = quantile_array[i-1] + dbl_spectrum[i]*dQ;
+    }
+
+    double quantile_max = get_max(quantile_array);
+    for(size_t i = 0; i<sizeof(dbl_spectrum); i++) {
+        temp_array[i] = i*(quantile_max/8191);
+    }
+
+    int c = 0;
+    for(size_t i = 0; i<sizeof(dbl_spectrum); i++) {
+        while(quantile_array[i]<temp_array[i]) {
+            c +=1;
+            if(c == 8192) break;
+        }
+        if(c <= 8191) reverse_array[i] = (uint16_t)(q(c)/dQ);
+        else reverse_array[i] = reverse_array[i-1];
+    }
+
+    return reverse_array;
+}
+
+double Spectrum::get_max(double array[]) {
+    double iMax = array[0];
+
+    for (int i=1; i<sizeof(array); i++)
+    {
+        if (array[i] > iMax) iMax = array[i];
+    }
+
+    return iMax;
+}

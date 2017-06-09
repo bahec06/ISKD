@@ -1,0 +1,28 @@
+#ifndef SPECTRUM_H
+#define SPECTRUM_H
+
+#include "stdint.h"
+#include "qmath.h"
+
+#define SPEC_SIZE 8192
+
+class Spectrum
+{
+private:
+    const double dQ = 1.221E-16; //Шаг по заряду, Кл
+public:
+    Spectrum();
+
+    double spectrum_array[SPEC_SIZE] = {0};
+    uint16_t reverse_array[SPEC_SIZE] = {0};
+
+    double* get_uni_spectrum(double qmin, double qmax);
+    double* get_gauss_spectrum(double qmean, double sigma);
+    double* get_lin_spectrum(double qmin, double qmax, double points);
+    double* get_exp_spectrum(double qmean);
+    double* get_const_spectrum(double q);
+    uint16_t* get_int_spectrum(double *dbl_spectrum);
+    double get_max(double array[]);
+};
+
+#endif // SPECTRUM_H
