@@ -73,6 +73,11 @@
     </item>
     <item>
      <property name="text">
+      <string>Ступенчатая</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
       <string>Экспоненциальная</string>
      </property>
     </item>

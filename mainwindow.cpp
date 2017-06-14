@@ -97,7 +97,7 @@ void MainWindow::change_model() {
             model_item2->setText("");
             model_item3->setText("");
             break;
-        case 2:
+        case 3:
             model_vh_item0->setText(str_F0);
             model_vh_item1->setText("Период, с");
             model_vh_item2->setText("");
@@ -107,7 +107,7 @@ void MainWindow::change_model() {
             model_item2->setText("");
             model_item3->setText("");
             break;
-        case 3:
+        case 4:
             model_vh_item0->setText(str_F0);
             model_vh_item1->setText("Начальный период, с");
             model_vh_item2->setText("Коэффициент периода");
@@ -117,7 +117,7 @@ void MainWindow::change_model() {
             model_item2->setText(QString::number(K));
             model_item3->setText("");
             break;
-        case 4:
+        case 5:
             model_vh_item0->setText(str_F0);
             model_vh_item1->setText("Реактивность, бета");
             model_vh_item2->setText("Энерговыработка, МВт*сут/кг");
@@ -146,16 +146,16 @@ void MainWindow::change_model_param() {
             F0 = model_item0->text().toDouble();
             A = model_item1->text().toDouble();
             break;
-        case 2:
+        case 3:
             F0 = model_item0->text().toDouble();
             T0 = model_item1->text().toDouble();
             break;
-        case 3:
+        case 4:
             F0 = model_item0->text().toDouble();
             T0 = model_item1->text().toDouble();
             K = model_item2->text().toDouble();
             break;
-        case 4:
+        case 5:
             F0 = model_item0->text().toDouble();
             r = model_item1->text().toDouble();
             z = model_item2->text().toDouble();
@@ -201,13 +201,13 @@ void MainWindow::on_start_gen_file_but_clicked() //В отдельный пот�
         case 1:
             file_gen.gen_reg_lin();
             break;
-        case 2:
+        case 3:
             file_gen.gen_reg_exp();
             break;
-        case 3:
+        case 4:
             file_gen.gen_reg_exp_var();
             break;
-        case 4:
+        case 5:
             //file_gen.gen_reg_react();
             break;
         default:
@@ -221,13 +221,13 @@ void MainWindow::on_start_gen_file_but_clicked() //В отдельный пот�
         case 1:
             file_gen.gen_rand_lin();
             break;
-        case 2:
+        case 3:
             file_gen.gen_rand_exp();
             break;
-        case 3:
+        case 4:
             file_gen.gen_rand_exp_var();
             break;
-        case 4:
+        case 5:
             //file_gen.gen_rand_react();
             break;
         default:

@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     model_file_generator.cpp \
     bgif_generator.cpp \
     global_options.cpp \
-    react_constants.cpp
+    react_constants.cpp \
+    widget_params.cpp
 
 HEADERS  += mainwindow.h \
     pulseform.h \
@@ -42,7 +43,8 @@ HEADERS  += mainwindow.h \
     service_types.h \
     bgif_generator.h \
     global_options.h \
-    react_constants.h
+    react_constants.h \
+    widget_params.h
 
 FORMS    += mainwindow.ui \
     form_options.ui \
