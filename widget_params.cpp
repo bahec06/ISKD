@@ -9,4 +9,6 @@ widget_params::widget_params()
     qcb_widget->addItem("БН");
     qcb_widget->addItem("ВВЭР");
     qcb_widget->addItem("Произвольная");
+
+    t_widget = new QTableWidget();
 }

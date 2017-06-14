@@ -3,6 +3,7 @@
 
 #include "QComboBox"
 #include "QLineEdit"
+#include "QTableWidget"
 
 class widget_params
 {
@@ -24,11 +25,12 @@ private:
     const QString enrichment = "Обогащение, %";
     const QString pu_u = "Соотношение ядер Pu и U в топливе";
 
+    QComboBox *qcb_widget;
+    QLineEdit *qle_widget;
 public:
     widget_params();
 
-    QComboBox *qcb_widget;
-    QLineEdit *qle_widget;
+    QTableWidget *t_widget;
 };
 
 #endif // WIDGET_PARAMS_H
