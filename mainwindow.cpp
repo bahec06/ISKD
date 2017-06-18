@@ -56,6 +56,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(thread, SIGNAL(started()), bgif, SLOT(start_generation())); //Запуск потока thread вызывает запуск генерации
     connect(bgif, SIGNAL(generation_finished()), thread, SLOT(terminate())); //По окончании генерации поток thread останавливается
     connect(bgif, SIGNAL(send_frequency(uint64_t)),this,SLOT(update_freq(uint64_t))); //Обновление текущего значения частоты на индикаторе по сигналу send_frequency
+
+    w_params = new widget_params();
 }
 
 MainWindow::~MainWindow()
@@ -77,7 +79,6 @@ void MainWindow::change_model() {
     }
     switch(ui->time_model_box->currentIndex()){
         case 0:
-            //ui->model_param_table->setCellWidget(0,0, Q);
             model_vh_item0->setText(str_F);
             model_vh_item1->setText("");
             model_vh_item2->setText("");
@@ -126,7 +127,6 @@ void MainWindow::change_model() {
             model_item1->setText(QString::number(r));
             model_item2->setText(QString::number(z));
             model_item3->setText(QString::number(x));
-            ui->model_param_table->setCellWidget(0,0, qcb_widget);
             break;
         default:
             break;

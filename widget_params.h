@@ -27,6 +27,9 @@ private:
 
     QComboBox *qcb_widget;
     QLineEdit *qle_widget;
+    QStringList h_list;
+
+    void reg_const();
 public:
     widget_params();
 

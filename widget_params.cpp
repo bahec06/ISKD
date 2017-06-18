@@ -11,4 +11,13 @@ widget_params::widget_params()
     qcb_widget->addItem("Произвольная");
 
     t_widget = new QTableWidget();
+    //reg_const();
+}
+
+void widget_params::reg_const()
+{
+    t_widget->clear();
+
+    h_list << reg_F;
+    t_widget->setVerticalHeaderLabels(h_list);
 }

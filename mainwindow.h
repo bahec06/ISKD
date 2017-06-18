@@ -10,6 +10,7 @@
 #include <QThread>
 #include "bgif_generator.h"
 #include <QComboBox>
+#include "widget_params.h"
 
 namespace Ui {
 class MainWindow;
@@ -57,6 +58,8 @@ public:
     double r0; //Начальная подкритичность
     double pu_u; //Соотношения ядер Pu к U в ядерном топливе для 6-групповой модели
     double cfreq;
+
+    widget_params *w_params;
 
     ~MainWindow();
 
