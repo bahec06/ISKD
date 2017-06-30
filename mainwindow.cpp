@@ -7,9 +7,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->model_param_table,SIGNAL(cellChanged(int,int)),this,SLOT(change_model_param()));
-    connect(ui->time_model_box, SIGNAL(currentIndexChanged(int)),this,SLOT(change_model()));
-    connect(ui->time_mode_box, SIGNAL(currentIndexChanged(int)),this,SLOT(change_model()));
+    //connect(ui->model_param_table,SIGNAL(cellChanged(int,int)),this,SLOT(change_model_param()));
+    //connect(ui->time_model_box, SIGNAL(currentIndexChanged(int)),this,SLOT(change_model()));
+    //connect(ui->time_mode_box, SIGNAL(currentIndexChanged(int)),this,SLOT(change_model()));
 
     F0 = 1e6;
     A = 1e5;
@@ -19,33 +19,40 @@ MainWindow::MainWindow(QWidget *parent) :
     z = 10;
     x = 2;
 
-    model_item0 = new QTableWidgetItem("");
-    model_item1 = new QTableWidgetItem("");
-    model_item2 = new QTableWidgetItem("");
-    model_item3 = new QTableWidgetItem("");
-    model_vh_item0 = new QTableWidgetItem("");
-    model_vh_item1 = new QTableWidgetItem("");
-    model_vh_item2 = new QTableWidgetItem("");
-    model_vh_item3 = new QTableWidgetItem("");
+    w_params = new wdg_params();
+    w_params->t_widget = ui->model_param_table;
+
+    connect(w_params, SIGNAL(update_table()), w_params, SLOT(slot_update()));
+    connect(ui->time_mode_box, SIGNAL(currentIndexChanged(int)), w_params, SLOT(pulse_dist_change(int)));
+    connect(ui->time_model_box, SIGNAL(currentIndexChanged(int)), w_params, SLOT(st_dist_change(int)));
+    //connect(w_params->t_widget,SIGNAL(cellChanged(int,int)), w_params, SLOT(slot_read_update()));
+    //model_item0 = new QTableWidgetItem("");
+    //model_item1 = new QTableWidgetItem("");
+    //model_item2 = new QTableWidgetItem("");
+    //model_item3 = new QTableWidgetItem("");
+    //model_vh_item0 = new QTableWidgetItem("");
+    //model_vh_item1 = new QTableWidgetItem("");
+    //model_vh_item2 = new QTableWidgetItem("");
+    //model_vh_item3 = new QTableWidgetItem("");
     //TODO
     //Сделать отдельно виджеты
-    qcb_widget = new QComboBox();
+    //qcb_widget = new QComboBox();
 
-    qcb_widget->addItem("РБМК");
-    qcb_widget->addItem("БН");
-    qcb_widget->addItem("ВВЭР");
-    qcb_widget->addItem("Произвольная");
+    //qcb_widget->addItem("РБМК");
+    //qcb_widget->addItem("БН");
+    //qcb_widget->addItem("ВВЭР");
+    //qcb_widget->addItem("Произвольная");
 
-    ui->model_param_table->blockSignals(true);
-    ui->model_param_table->setVerticalHeaderItem(0, model_vh_item0);
-    ui->model_param_table->setVerticalHeaderItem(1, model_vh_item1);
-    ui->model_param_table->setVerticalHeaderItem(2, model_vh_item2);
-    ui->model_param_table->setVerticalHeaderItem(3, model_vh_item3);
-    ui->model_param_table->setItem(0, 0, model_item0);
-    ui->model_param_table->setItem(1, 0, model_item1);
-    ui->model_param_table->setItem(2, 0, model_item2);
-    ui->model_param_table->setItem(3, 0, model_item3);
-    ui->model_param_table->blockSignals(false);
+    //ui->model_param_table->blockSignals(true);
+    //ui->model_param_table->setVerticalHeaderItem(0, model_vh_item0);
+    //ui->model_param_table->setVerticalHeaderItem(1, model_vh_item1);
+    //ui->model_param_table->setVerticalHeaderItem(2, model_vh_item2);
+    //ui->model_param_table->setVerticalHeaderItem(3, model_vh_item3);
+    //ui->model_param_table->setItem(0, 0, model_item0);
+    //ui->model_param_table->setItem(1, 0, model_item1);
+    //ui->model_param_table->setItem(2, 0, model_item2);
+    //ui->model_param_table->setItem(3, 0, model_item3);
+    //ui->model_param_table->blockSignals(false);
 
     ui->time_model_box->setCurrentIndex(1);
 
@@ -56,8 +63,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(thread, SIGNAL(started()), bgif, SLOT(start_generation())); //Запуск потока thread вызывает запуск генерации
     connect(bgif, SIGNAL(generation_finished()), thread, SLOT(terminate())); //По окончании генерации поток thread останавливается
     connect(bgif, SIGNAL(send_frequency(uint64_t)),this,SLOT(update_freq(uint64_t))); //Обновление текущего значения частоты на индикаторе по сигналу send_frequency
-
-    w_params = new widget_params();
 }
 
 MainWindow::~MainWindow()
@@ -68,65 +73,74 @@ MainWindow::~MainWindow()
 void MainWindow::change_model() {
     ui->model_param_table->blockSignals(true);
     if(ui->time_mode_box->currentIndex() == 0) {
-        str_F = reg_F;
-        str_F0 = reg_F0;
-        str_A = reg_AF;
+//        str_F = reg_F;
+//        str_F0 = reg_F0;
+//        str_A = reg_AF;
+        w_params->s_type = REG;
     }
     else {
-        str_F = reg_C;
-        str_F0 = reg_C0;
-        str_A = reg_AC;
+//        str_F = reg_C;
+//        str_F0 = reg_C0;
+//        str_A = reg_AC;
+        w_params->s_type = RAND;
     }
     switch(ui->time_model_box->currentIndex()){
         case 0:
-            model_vh_item0->setText(str_F);
-            model_vh_item1->setText("");
-            model_vh_item2->setText("");
-            model_vh_item3->setText("");
-            model_item0->setText(QString::number(F0));
-            model_item1->setText("");
-            model_item2->setText("");
-            model_item3->setText("");
+            w_params->set_reg_signal();
+            //model_vh_item0->setText(str_F);
+            //model_vh_item1->setText("");
+            //model_vh_item2->setText("");
+            //model_vh_item3->setText("");
+            //model_item0->setText(QString::number(F0));
+            //model_item1->setText("");
+            //model_item2->setText("");
+            //model_item3->setText("");
             break;
         case 1:
-            model_vh_item0->setText(str_F0);
-            model_vh_item1->setText(str_A);
-            model_vh_item2->setText("");
-            model_vh_item3->setText("");
-            model_item0->setText(QString::number(F0));
-            model_item1->setText(QString::number(A));
-            model_item2->setText("");
-            model_item3->setText("");
+            w_params->set_lin_signal();
+            //model_vh_item0->setText(str_F0);
+            //model_vh_item1->setText(str_A);
+            //model_vh_item2->setText("");
+            //model_vh_item3->setText("");
+            //model_item0->setText(QString::number(F0));
+            //model_item1->setText(QString::number(A));
+            //model_item2->setText("");
+            //model_item3->setText("");
+            break;
+        case 2:
             break;
         case 3:
-            model_vh_item0->setText(str_F0);
-            model_vh_item1->setText("Период, с");
-            model_vh_item2->setText("");
-            model_vh_item3->setText("");
-            model_item0->setText(QString::number(F0));
-            model_item1->setText(QString::number(T0));
-            model_item2->setText("");
-            model_item3->setText("");
+            w_params->set_exp_signal();
+            //model_vh_item0->setText(str_F0);
+            //model_vh_item1->setText("Период, с");
+            //model_vh_item2->setText("");
+            //model_vh_item3->setText("");
+            //model_item0->setText(QString::number(F0));
+            //model_item1->setText(QString::number(T0));
+            //model_item2->setText("");
+            //model_item3->setText("");
             break;
         case 4:
-            model_vh_item0->setText(str_F0);
-            model_vh_item1->setText("Начальный период, с");
-            model_vh_item2->setText("Коэффициент периода");
-            model_vh_item3->setText("");
-            model_item0->setText(QString::number(F0));
-            model_item1->setText(QString::number(T0));
-            model_item2->setText(QString::number(K));
-            model_item3->setText("");
+            w_params->set_explin_signal();
+            //model_vh_item0->setText(str_F0);
+            //model_vh_item1->setText("Начальный период, с");
+            //model_vh_item2->setText("Коэффициент периода");
+            //model_vh_item3->setText("");
+            //model_item0->setText(QString::number(F0));
+            //model_item1->setText(QString::number(T0));
+            //model_item2->setText(QString::number(K));
+            //model_item3->setText("");
             break;
         case 5:
-            model_vh_item0->setText(str_F0);
-            model_vh_item1->setText("Реактивность, бета");
-            model_vh_item2->setText("Энерговыработка, МВт*сут/кг");
-            model_vh_item3->setText("Обогащение, %");
-            model_item0->setText(QString::number(F0));
-            model_item1->setText(QString::number(r));
-            model_item2->setText(QString::number(z));
-            model_item3->setText(QString::number(x));
+
+            //model_vh_item0->setText(str_F0);
+            //model_vh_item1->setText("Реактивность, бета");
+            //model_vh_item2->setText("Энерговыработка, МВт*сут/кг");
+            //model_vh_item3->setText("Обогащение, %");
+            //model_item0->setText(QString::number(F0));
+            //model_item1->setText(QString::number(r));
+            //model_item2->setText(QString::number(z));
+            //model_item3->setText(QString::number(x));
             break;
         default:
             break;
@@ -137,7 +151,8 @@ void MainWindow::change_model() {
 
 void MainWindow::change_model_param() {
     model_index = ui->time_model_box->currentIndex();
-
+    w_params->read_params_from_table(model_index);
+    /*
     switch(model_index){
         case 0:
             F0 = model_item0->text().toDouble();
@@ -164,6 +179,7 @@ void MainWindow::change_model_param() {
         default:
             break;
     }
+    */
 }
 
 void MainWindow::on_options_triggered()
