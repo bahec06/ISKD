@@ -24,11 +24,12 @@ SOURCES += main.cpp\
     qcustomplot.cpp \
     form_options.cpp \
     spec_options.cpp \
-    model_file_generator.cpp \
     bgif_generator.cpp \
     global_options.cpp \
     react_constants.cpp \
-    wdg_params.cpp
+    wdg_params.cpp \
+    file_gen_thread.cpp \
+    wr_file_loops.cpp
 
 HEADERS  += mainwindow.h \
     pulseform.h \
@@ -39,12 +40,13 @@ HEADERS  += mainwindow.h \
     qcustomplot.h \
     form_options.h \
     spec_options.h \
-    model_file_generator.h \
     service_types.h \
     bgif_generator.h \
     global_options.h \
     react_constants.h \
-    wdg_params.h
+    wdg_params.h \
+    file_gen_thread.h \
+    wr_file_loops.h
 
 FORMS    += mainwindow.ui \
     form_options.ui \

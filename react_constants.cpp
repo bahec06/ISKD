@@ -114,16 +114,16 @@ void react_constants::init_react_consts_bn(double initial_F) {
     preinit_react_consts(initial_F);
 }
 
-void react_constants::init_react_consts(react_mod_enum rmod, double initial_F) {
-    if(rmod == rbmk) {
+void react_constants::init_react_consts(r_models rmod, double initial_F) {
+    if(rmod == RBMK) {
         N = 24;
         init_react_consts_rbmk(initial_F);
     }
-    else if(rmod == bwr) {
+    else if(rmod == VVR) {
         N = 6;
         init_react_consts_bwr(initial_F);
     }
-    else if(rmod == bn) {
+    else if(rmod == BN) {
         N = 8;
         init_react_consts_bn(initial_F);
     }
@@ -136,6 +136,13 @@ void react_constants::preinit_react_consts(double initial_F) {
         a[i] = (1 - ((1 - e[i]) / (dt * lam[i]))) * bb[i];
         b[i] = (e[i] - ((1 - e[i]) / (dt * lam[i]))) * bb[i];
         x[i] = bb[i] * initial_F;
+    }
+
+    sum_a = 0;
+    sum_b = 0;
+    for (int j = 0; j < N; j++) {
+        sum_b = sum_b + b[j];
+        sum_a = sum_a + a[j];
     }
 }
 

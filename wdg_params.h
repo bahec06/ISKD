@@ -5,6 +5,7 @@
 #include "QComboBox"
 #include "QLineEdit"
 #include "QTableWidget"
+#include "service_types.h"
 
 enum sig_type {
     REG = 0,
@@ -20,12 +21,6 @@ enum sig_time_dist {
     REACT = 5
 };
 
-enum r_models {
-    RBMK = 0,
-    VVR = 1,
-    BN = 2
-};
-
 class wdg_params : public QObject
 {
     Q_OBJECT
@@ -37,7 +32,10 @@ public:
     void set_exp_signal();
     void set_explin_signal();
     void set_react_signal();
-    void read_params_from_table(int model_index);
+    void create_rmod_qcb();
+    void create_en_y_qcb();
+    void create_enrch_qcb();
+    void create_pu_u_qcb();
 
     QTableWidget *t_widget;
     sig_type s_type;
@@ -52,9 +50,9 @@ public:
     double R0;
     double R;
     double Rt;
-    double En_Y;
-    double Enrch;
-    double Pu_U;
+    yield_enum En_Y;
+    enrichment_enum Enrch;
+    pu_u_enum Pu_U;
 
 private:
     const QString reg_F = "Частота, Гц";
@@ -77,7 +75,10 @@ private:
 
     QStringList m_TableHeader;
 
-    QComboBox *qcb_widget;
+    QComboBox *qcb_rmod_widget;
+    QComboBox *qcb_en_y_widget;
+    QComboBox *qcb_enrch_widget;
+    QComboBox *qcb_pu_u_widget;
     QLineEdit *qle_widget;
 
     void init_table();
@@ -88,6 +89,11 @@ public slots:
     void pulse_dist_change(int p_dist);
     void st_dist_change(int ext_st_dist);
     void slot_update();
+    void rmod_update();
+    void en_y_update();
+    void enrch_update();
+    void pu_u_update();
+    void read_params_from_table();
 };
 
 #endif // WDG_PARAMS_H

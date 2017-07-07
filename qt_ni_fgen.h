@@ -24,7 +24,7 @@ public:
 
     ViSession fgen_vi = VI_NULL;
     ViStatus error = VI_SUCCESS;
-    QMessageBox msg;
+    ViChar errMsg[256];
     double CMO, DO;
 
     ViUInt32 fgen_init();

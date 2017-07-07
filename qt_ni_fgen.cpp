@@ -35,10 +35,7 @@ ViUInt32 qt_ni_fgen::fgen_init() {
     //Если одна из функций не сработала, ошибка выводится в MessageBox <msg>
     Error:
         if(error != VI_SUCCESS) {
-           ViChar errMsg[256];
            niFgen_ErrorHandler(fgen_vi, error, errMsg);
-           msg.setText(QString(errMsg));
-           msg.exec();
            fgen_p2p_endpoint = 0;
         }
 
@@ -52,8 +49,6 @@ void qt_ni_fgen::start_generation() {
         if(error != VI_SUCCESS) {
            ViChar errMsg[256];
            niFgen_ErrorHandler(fgen_vi, error, errMsg);
-           msg.setText(QString(errMsg));
-           msg.exec();
         }
 }
 //Остановка генератора
@@ -65,7 +60,5 @@ void qt_ni_fgen::fgen_stop(){
         if(error != VI_SUCCESS) {
            ViChar errMsg[256];
            niFgen_ErrorHandler(fgen_vi, error, errMsg);
-           msg.setText(QString(errMsg));
-           msg.exec();
         }
 }

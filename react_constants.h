@@ -33,7 +33,7 @@ public:
     //**************8-групповая модель БН*********************//
     //Константы
     const double lam_bn[24] = {0.0125, 0.0283, 0.0425, 0.1330, 0.2925, 0.6665, 1.6350, 3.5550, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    const double bb_bn[24] = {0.0252458, 0.1442657, 0.0743784, 0.1781303, 0.3186853, 0.1211844, 0.0947100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    const double bb_bn[24] = {0.0252458, 0.1442657, 0.0743784, 0.1781303, 0.3186853, 0.1211844, 0.0947100, 0.0434001, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     const double l_bn = 0.00001;
     const double bet_bn = 0.0065;
 
@@ -73,7 +73,7 @@ public:
     void init_react_consts_rbmk(double initial_F);
     void init_react_consts_bwr(double initial_F);
     void init_react_consts_bn(double initial_F);
-    void init_react_consts(react_mod_enum rmod, double initial_F);
+    void init_react_consts(r_models rmod, double initial_F);
     void preinit_react_consts(double initial_F);
     void react_d_rbmk(yield_enum z, enrichment_enum x);
 };

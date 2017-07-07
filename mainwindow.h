@@ -6,7 +6,7 @@
 #include "form_options.h"
 #include "spec_options.h"
 #include "global_options.h"
-#include "model_file_generator.h"
+#include "file_gen_thread.h"
 #include <QThread>
 #include "bgif_generator.h"
 #include <QComboBox>
@@ -25,7 +25,6 @@ public:
     Form_Options f_opt;
     spec_options s_opt;
     global_options g_opt;
-    model_file_generator file_gen;
 
     QTableWidgetItem *model_item0;
     QTableWidgetItem *model_item1;
@@ -70,15 +69,16 @@ private:
     int mode_index;
     QThread *thread;
     bgif_generator *bgif;
+    file_gen_thread *f_thread;
 
 private slots:
-     void change_model();
-     void change_model_param();
      void on_options_triggered();
      void on_form_conf_triggered();
      void on_spec_conf_triggered();
      void on_start_gen_file_but_clicked();
      void update_freq(uint64_t);
+     void wr_file_done();
+     void update_bar(int);
      void on_start_generation_clicked();
      void on_stop_generation_clicked();
 };

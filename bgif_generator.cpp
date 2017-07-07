@@ -36,7 +36,13 @@ void bgif_generator::start_generation()
 {
     init_fpga_params(); //Инициализация начальных параметров FPGA
     fgen_p2p_endpoint = fgen.fgen_init(); //Инициализация начальных параметров NI FGEN
+    if(fgen_p2p_endpoint == 0) {
+        return;
+    }
     fpga_p2p_endpoint = fpga.fpga_init(spectrum, pulse_form); //Инициализация начальных параметров NI FPGA
+    if(fgen_p2p_endpoint == 0) {
+        return;
+    }
     fpga.fpga_play(); //Перейти в цикл воспроизведения сигнала
     p2p.CreateAndLinkStream(fpga_p2p_endpoint, fgen_p2p_endpoint); //Создать связь P2P между NI FPGA и NI FGEN
     fgen.start_generation(); //Запуск генератора

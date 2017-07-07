@@ -7,10 +7,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    //connect(ui->model_param_table,SIGNAL(cellChanged(int,int)),this,SLOT(change_model_param()));
-    //connect(ui->time_model_box, SIGNAL(currentIndexChanged(int)),this,SLOT(change_model()));
-    //connect(ui->time_mode_box, SIGNAL(currentIndexChanged(int)),this,SLOT(change_model()));
-
     F0 = 1e6;
     A = 1e5;
     T0 = 20;
@@ -25,39 +21,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(w_params, SIGNAL(update_table()), w_params, SLOT(slot_update()));
     connect(ui->time_mode_box, SIGNAL(currentIndexChanged(int)), w_params, SLOT(pulse_dist_change(int)));
     connect(ui->time_model_box, SIGNAL(currentIndexChanged(int)), w_params, SLOT(st_dist_change(int)));
-    //connect(w_params->t_widget,SIGNAL(cellChanged(int,int)), w_params, SLOT(slot_read_update()));
-    //model_item0 = new QTableWidgetItem("");
-    //model_item1 = new QTableWidgetItem("");
-    //model_item2 = new QTableWidgetItem("");
-    //model_item3 = new QTableWidgetItem("");
-    //model_vh_item0 = new QTableWidgetItem("");
-    //model_vh_item1 = new QTableWidgetItem("");
-    //model_vh_item2 = new QTableWidgetItem("");
-    //model_vh_item3 = new QTableWidgetItem("");
-    //TODO
-    //Сделать отдельно виджеты
-    //qcb_widget = new QComboBox();
-
-    //qcb_widget->addItem("РБМК");
-    //qcb_widget->addItem("БН");
-    //qcb_widget->addItem("ВВЭР");
-    //qcb_widget->addItem("Произвольная");
-
-    //ui->model_param_table->blockSignals(true);
-    //ui->model_param_table->setVerticalHeaderItem(0, model_vh_item0);
-    //ui->model_param_table->setVerticalHeaderItem(1, model_vh_item1);
-    //ui->model_param_table->setVerticalHeaderItem(2, model_vh_item2);
-    //ui->model_param_table->setVerticalHeaderItem(3, model_vh_item3);
-    //ui->model_param_table->setItem(0, 0, model_item0);
-    //ui->model_param_table->setItem(1, 0, model_item1);
-    //ui->model_param_table->setItem(2, 0, model_item2);
-    //ui->model_param_table->setItem(3, 0, model_item3);
-    //ui->model_param_table->blockSignals(false);
+    connect(w_params->t_widget, SIGNAL(cellChanged(int,int)), w_params, SLOT(read_params_from_table()));
 
     ui->time_model_box->setCurrentIndex(1);
 
     thread = new QThread;
     bgif = new bgif_generator;
+    ui->file_gen_bar->setValue(0);
 
     bgif->moveToThread(thread);
     connect(thread, SIGNAL(started()), bgif, SLOT(start_generation())); //Запуск потока thread вызывает запуск генерации
@@ -68,118 +38,6 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
-}
-
-void MainWindow::change_model() {
-    ui->model_param_table->blockSignals(true);
-    if(ui->time_mode_box->currentIndex() == 0) {
-//        str_F = reg_F;
-//        str_F0 = reg_F0;
-//        str_A = reg_AF;
-        w_params->s_type = REG;
-    }
-    else {
-//        str_F = reg_C;
-//        str_F0 = reg_C0;
-//        str_A = reg_AC;
-        w_params->s_type = RAND;
-    }
-    switch(ui->time_model_box->currentIndex()){
-        case 0:
-            w_params->set_reg_signal();
-            //model_vh_item0->setText(str_F);
-            //model_vh_item1->setText("");
-            //model_vh_item2->setText("");
-            //model_vh_item3->setText("");
-            //model_item0->setText(QString::number(F0));
-            //model_item1->setText("");
-            //model_item2->setText("");
-            //model_item3->setText("");
-            break;
-        case 1:
-            w_params->set_lin_signal();
-            //model_vh_item0->setText(str_F0);
-            //model_vh_item1->setText(str_A);
-            //model_vh_item2->setText("");
-            //model_vh_item3->setText("");
-            //model_item0->setText(QString::number(F0));
-            //model_item1->setText(QString::number(A));
-            //model_item2->setText("");
-            //model_item3->setText("");
-            break;
-        case 2:
-            break;
-        case 3:
-            w_params->set_exp_signal();
-            //model_vh_item0->setText(str_F0);
-            //model_vh_item1->setText("Период, с");
-            //model_vh_item2->setText("");
-            //model_vh_item3->setText("");
-            //model_item0->setText(QString::number(F0));
-            //model_item1->setText(QString::number(T0));
-            //model_item2->setText("");
-            //model_item3->setText("");
-            break;
-        case 4:
-            w_params->set_explin_signal();
-            //model_vh_item0->setText(str_F0);
-            //model_vh_item1->setText("Начальный период, с");
-            //model_vh_item2->setText("Коэффициент периода");
-            //model_vh_item3->setText("");
-            //model_item0->setText(QString::number(F0));
-            //model_item1->setText(QString::number(T0));
-            //model_item2->setText(QString::number(K));
-            //model_item3->setText("");
-            break;
-        case 5:
-
-            //model_vh_item0->setText(str_F0);
-            //model_vh_item1->setText("Реактивность, бета");
-            //model_vh_item2->setText("Энерговыработка, МВт*сут/кг");
-            //model_vh_item3->setText("Обогащение, %");
-            //model_item0->setText(QString::number(F0));
-            //model_item1->setText(QString::number(r));
-            //model_item2->setText(QString::number(z));
-            //model_item3->setText(QString::number(x));
-            break;
-        default:
-            break;
-    }
-    ui->model_param_table->blockSignals(false);
-    emit change_model_param();
-}
-
-void MainWindow::change_model_param() {
-    model_index = ui->time_model_box->currentIndex();
-    w_params->read_params_from_table(model_index);
-    /*
-    switch(model_index){
-        case 0:
-            F0 = model_item0->text().toDouble();
-            break;
-        case 1:
-            F0 = model_item0->text().toDouble();
-            A = model_item1->text().toDouble();
-            break;
-        case 3:
-            F0 = model_item0->text().toDouble();
-            T0 = model_item1->text().toDouble();
-            break;
-        case 4:
-            F0 = model_item0->text().toDouble();
-            T0 = model_item1->text().toDouble();
-            K = model_item2->text().toDouble();
-            break;
-        case 5:
-            F0 = model_item0->text().toDouble();
-            r = model_item1->text().toDouble();
-            z = model_item2->text().toDouble();
-            x = model_item3->text().toDouble();
-            break;
-        default:
-            break;
-    }
-    */
 }
 
 void MainWindow::on_options_triggered()
@@ -197,63 +55,53 @@ void MainWindow::on_spec_conf_triggered()
     s_opt.show();
 }
 
-void MainWindow::on_start_gen_file_but_clicked() //В отдельный поток
+void MainWindow::on_start_gen_file_but_clicked()
 {
-    model_index = ui->time_model_box->currentIndex();
-    mode_index = ui->time_mode_box->currentIndex();
+    f_thread = new file_gen_thread();
 
-    file_gen.F0 = F0;
-    file_gen.A = A;
-    file_gen.T0 = T0;
-    file_gen.r0 = r;
-//    file_gen.energy_yield = z;
-//    file_gen.enrichment = x;
-//    file_gen.K = K;
+    f_thread->S = w_params->S;
+    f_thread->A = w_params->A;
+    f_thread->T = w_params->T;
+    f_thread->R0 = w_params->R0;
+    f_thread->R = w_params->R;
+    f_thread->TT = w_params->TT;
+    f_thread->Kt = w_params->Kt;
+    f_thread->r_mod = w_params->r_mod;
+    f_thread->En_Y = w_params->En_Y;
+    f_thread->Enrch = w_params->Enrch;
+    f_thread->Pu_U = w_params->Pu_U;
+    f_thread->A_R = w_params->R/w_params->Rt;
 
-    if(mode_index == 0) {
-        switch (model_index) {
-        case 0:
-            break;
-        case 1:
-            file_gen.gen_reg_lin();
-            break;
-        case 3:
-            file_gen.gen_reg_exp();
-            break;
-        case 4:
-            file_gen.gen_reg_exp_var();
-            break;
-        case 5:
-            //file_gen.gen_reg_react();
-            break;
-        default:
-            break;
-        }
-    }
-    else {
-        switch (model_index) {
-        case 0:
-            break;
-        case 1:
-            file_gen.gen_rand_lin();
-            break;
-        case 3:
-            file_gen.gen_rand_exp();
-            break;
-        case 4:
-            file_gen.gen_rand_exp_var();
-            break;
-        case 5:
-            //file_gen.gen_rand_react();
-            break;
-        default:
-            break;
-        }
-    }
+    f_thread->model_index = ui->time_model_box->currentIndex();
+    f_thread->mode_index = ui->time_mode_box->currentIndex();
+
+    QThread* thread = new QThread();
+    f_thread->moveToThread(thread);
+    connect(f_thread, SIGNAL(send_bar(int)), this, SLOT(update_bar(int)));
+    connect(thread, SIGNAL(started()), f_thread, SLOT(process()));
+    connect(f_thread, SIGNAL(finished()), this, SLOT(wr_file_done()));
+    connect(f_thread, SIGNAL(finished()), thread, SLOT(quit()));
+    connect(f_thread, SIGNAL(finished()), f_thread, SLOT(deleteLater()));
+    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+
+    thread->start();
 }
 
 void MainWindow::update_freq(uint64_t freq) {
     ui->freq_line->setText(QString::number(double(freq)*pow(2,-16)));
+}
+
+void MainWindow::update_bar(int a) {
+    ui->file_gen_bar->setValue(a);
+}
+
+void MainWindow::wr_file_done() {
+    ui->file_gen_bar->setValue(100);
+    QMessageBox *box = new QMessageBox();
+    box->setWindowTitle("Сообщение");
+    box->setText("Запись файла завершена");
+    box->exec();
+    ui->file_gen_bar->setValue(0);
 }
 
 void MainWindow::on_start_generation_clicked()
