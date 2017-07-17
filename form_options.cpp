@@ -7,7 +7,7 @@ Form_Options::Form_Options(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(ui->pulse_form_box, SIGNAL(currentIndexChanged(int)),this,SLOT(replot_form()));
-    connect(ui->pulse_duration_ledit, SIGNAL(textChanged(QString)),this,SLOT(replot_form()));
+    connect(ui->pulse_duration_edit, SIGNAL(textChanged(QString)),this,SLOT(replot_form()));
 
     ui->pform_plot->addGraph();
     ui->pform_plot->xAxis->setLabel("t, с");
@@ -15,8 +15,13 @@ Form_Options::Form_Options(QWidget *parent) :
     ui->pform_plot->xAxis->setRange(0, 1e-6);
     ui->pform_plot->yAxis->setRange(0, 1e7);
 
-    ui->pulse_duration_ledit->setText(QString::number(2e-7));
-    ui->pulse_form_box->setCurrentIndex(1);
+    xrw = new xml_rw();
+    QMap<QString, QString> map = xrw->read_file(fname, opt_name);
+
+    ui->pulse_form_box->setCurrentIndex(map[tag_name[0]].toDouble());
+    ui->pulse_duration_edit->setText(map[tag_name[1]]);
+
+    replot_form();
 }
 
 Form_Options::~Form_Options()
@@ -26,7 +31,8 @@ Form_Options::~Form_Options()
 
 void Form_Options::replot_form() {
     int index = ui->pulse_form_box->currentIndex();
-    QString s_dur = ui->pulse_duration_ledit->text();
+    s_dur = ui->pulse_duration_edit->text();
+    s_form = ui->pulse_form_box->itemText(index);
     double dur = s_dur.toDouble();
     switch(index){
         case 0:
@@ -45,9 +51,14 @@ void Form_Options::replot_form() {
             break;
     }
 
-    ui->pform_plot->yAxis->setRange(0, 1.1*get_peak_amp(form.form_struct.norm_pulse_form));
-    ui->pform_plot->graph(0)->setData(form.t,form.form_struct.norm_pulse_form);
+    QVector<QString> tag_value = {QString::number(index), QString::number(dur)};
+    xrw->write_file(fname, opt_name, tag_name, tag_value);
+
+    ui->pform_plot->yAxis->setRange(0, 1.1*get_peak_amp(form.norm_pulse_form));
+    ui->pform_plot->graph(0)->setData(form.t,form.norm_pulse_form);
     ui->pform_plot->replot();
+
+    emit update_form();
 }
 
 double Form_Options::get_peak_amp(QVector<double> array) {

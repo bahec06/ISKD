@@ -7,10 +7,11 @@ PulseForm::PulseForm()
     dU = 2.5/(qPow(2,16)-1);
     dQ = MAX_CHARGE/(SPEC_SIZE-1);
     k = (pow(2,31)-1)/(30*(SPEC_SIZE-1)*100);
+    R = 100000;
 
     t.resize(P_FORM_SIZE);
-    form_struct.norm_pulse_form.resize(P_FORM_SIZE);
-    for(int i = 0; i<P_FORM_SIZE; i++) {
+    norm_pulse_form.resize(P_FORM_SIZE);
+    for(int i = 0; i < P_FORM_SIZE; i++) {
         t[i] = i*dt;
     }
 }
@@ -73,18 +74,18 @@ void PulseForm::get_parabolic_pulse(double Tu) {
 void PulseForm::fpga_compatible_pulse(QVector<double> pulse) {
     //Форма импульса, совместимая с FPGA
     for(int i = 0; i < P_FORM_SIZE; i++) {
-        form_struct.pulse_form[i] = (uint16_t)(pulse[i]*k);
+        pulse_form[i] = (uint16_t)(pulse[i]*k);
     }
     //Форма импульса с единичной площадью
     square = 0;
 
     for(int i = 0; i < P_FORM_SIZE; i++) {
-        square += dt*((double)form_struct.pulse_form[i]);
+        square += dt*((double)pulse_form[i]);
     }
 
     for(int i = 0; i < P_FORM_SIZE; i++) {
-        form_struct.norm_pulse_form[i] = ((double)form_struct.pulse_form[i])/square;
+        norm_pulse_form[i] = ((double)pulse_form[i])/square;
     }
 
-   form_struct.pulse_coeff = (R*dQ/dU)/square;
+   pulse_coeff = (R*dQ/dU)/(square*2); //Двойка из-за 50 Ом, предположительно
 }

@@ -2,7 +2,7 @@
 
 qt_ni_p2p::qt_ni_p2p()
 {
-
+    p2p_handle = 0;
 }
 
 int32_t qt_ni_p2p::CreateAndLinkStream(nip2p_tEndpointHandle fpga_endpoint, nip2p_tEndpointHandle fgen_endpoint) {
@@ -10,7 +10,7 @@ int32_t qt_ni_p2p::CreateAndLinkStream(nip2p_tEndpointHandle fpga_endpoint, nip2
 }
 
 int32_t qt_ni_p2p::FlushAndDisableStream() {
-    return nip2pFlushAndDisableStream(p2p_handle, 2, flush_tout);
+    return nip2pFlushAndDisableStream(p2p_handle, 2, &flush_tout);
 }
 
 int32_t qt_ni_p2p::DestroyStream() {

@@ -26,6 +26,7 @@ public:
     void get_int_spectrum(QVector<double> array); //Получение обратного спектра через прямой
     double get_max(QVector<double> array); //Получение максимального значения массива
     double get_square(); //Получение площади массива <spectrum_array>
+    double get_mean_charge(); //Получение среднего значения заряда в спектре
 };
 
 #endif // SPECTRUM_H

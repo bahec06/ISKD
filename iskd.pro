@@ -29,7 +29,8 @@ SOURCES += main.cpp\
     react_constants.cpp \
     wdg_params.cpp \
     file_gen_thread.cpp \
-    wr_file_loops.cpp
+    wr_file_loops.cpp \
+    xml_rw.cpp
 
 HEADERS  += mainwindow.h \
     pulseform.h \
@@ -46,7 +47,8 @@ HEADERS  += mainwindow.h \
     react_constants.h \
     wdg_params.h \
     file_gen_thread.h \
-    wr_file_loops.h
+    wr_file_loops.h \
+    xml_rw.h
 
 FORMS    += mainwindow.ui \
     form_options.ui \

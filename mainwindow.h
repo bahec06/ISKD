@@ -62,12 +62,13 @@ public:
     void reinit_table_constants();
 
     ~MainWindow();
+protected:
+    void keyPressEvent(QKeyEvent *);
 
 private:
     Ui::MainWindow *ui;
     int model_index;
     int mode_index;
-    QThread *thread;
     bgif_generator *bgif;
     file_gen_thread *f_thread;
 
@@ -76,11 +77,17 @@ private slots:
      void on_form_conf_triggered();
      void on_spec_conf_triggered();
      void on_start_gen_file_but_clicked();
-     void update_freq(uint64_t);
+     void update_freq(quint64);
      void wr_file_done();
      void update_bar(int);
      void on_start_generation_clicked();
      void on_stop_generation_clicked();
+
+     void update_play_label(bool);
+     void fpga_error_msg();
+     void fgen_error_msg();
+
+     void update_param_table();
 };
 
 #endif // MAINWINDOW_H

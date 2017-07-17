@@ -8,11 +8,6 @@
 #define MAX_CHARGE 1E-12
 //Параметры формы импульа
 #define P_FORM_SIZE 101
-struct p_form {
-    uint16_t pulse_form[SPEC_SIZE];
-    QVector<double> norm_pulse_form;
-    double pulse_coeff = 0;
-};
 //Модели реакторов
 enum r_models {
     RBMK = 0,

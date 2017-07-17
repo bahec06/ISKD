@@ -4,6 +4,7 @@
 #include <QDialog>
 #include "spectrum.h"
 #include <QTableWidgetItem>
+#include "xml_rw.h"
 
 namespace Ui {
 class spec_options;
@@ -15,6 +16,8 @@ class spec_options : public QDialog
 
 public:
     Spectrum spec;
+    QString s_spec; //Название спектра
+    double mean_charge; //Средний заряд в импульсе
     explicit spec_options(QWidget *parent = 0);
     ~spec_options();
 
@@ -33,10 +36,17 @@ private:
     double l;
     double get_peak_amp(QVector<double> array);
     Ui::spec_options *ui;
+    xml_rw *xrw;
+    QString fname = "D:/Qt_repo/spec.xml";
+    QString opt_name = "s_opt";
+    QVector<QString> tag_name = {"l", "qconst", "qmax", "qmean", "qmin", "qsigma", "spec_id"};
 
 private slots:
     void change_spec(int index);
     void replot_spec();
+
+signals:
+    void update_spectrum();
 };
 
 #endif // SPEC_OPTIONS_H

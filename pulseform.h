@@ -19,7 +19,9 @@ public:
 
     double R;
     double square;
-    p_form form_struct;
+    uint16_t pulse_form[P_FORM_SIZE];
+    double pulse_coeff = 0;
+    QVector<double> norm_pulse_form;
     QVector<double> t;
 
     void get_square_pulse(double Tu);

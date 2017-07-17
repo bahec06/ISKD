@@ -16,6 +16,7 @@ void Spectrum::get_const_spectrum(double q){
 
     int point = (int)(qFloor(q/dQ));
     spectrum_array[point] = 1/dQ;
+    get_int_spectrum(spectrum_array);
 }
 
 void Spectrum::get_uni_spectrum(double qmin, double qmax) {
@@ -24,9 +25,10 @@ void Spectrum::get_uni_spectrum(double qmin, double qmax) {
     int first_point = (int)(qFloor(qmin/dQ));
     int second_point = (int)(qFloor(qmax/dQ));
 
-    for(int i = first_point; i< second_point; i++) {
+    for(int i = first_point; i < second_point; i++) {
         spectrum_array[i] = 1/(qmax-qmin);
     }
+    get_int_spectrum(spectrum_array);
 }
 
 void Spectrum::get_gauss_spectrum(double qmean, double sigma) {
@@ -35,6 +37,7 @@ void Spectrum::get_gauss_spectrum(double qmean, double sigma) {
     for(int i = 0; i < SPEC_SIZE; i++) {
         spectrum_array[i] = (1/(sigma*qSqrt(2*M_PI)))*qExp(-(qPow((i*dQ-qmean),2))/(2*qPow(sigma,2)));
     }
+    get_int_spectrum(spectrum_array);
 }
 
 void Spectrum::get_lin_spectrum(double qmin, double qmax, int n_points) {
@@ -51,6 +54,7 @@ void Spectrum::get_lin_spectrum(double qmin, double qmax, int n_points) {
     for(int i = 0; i < n_points; i++) {
         spectrum_array[point[i]] = 1/(n_points*dQ);
     }
+    get_int_spectrum(spectrum_array);
 }
 
 void Spectrum::get_exp_spectrum(double qmean){
@@ -59,11 +63,10 @@ void Spectrum::get_exp_spectrum(double qmean){
     for(int i = 0; i < SPEC_SIZE; i++) {
         spectrum_array[i] = (1/qmean)*qExp(-i*dQ/qmean);
     }
+    get_int_spectrum(spectrum_array);
 }
 
 void Spectrum::get_int_spectrum(QVector<double> array) {
-    clear_array();
-
     QVector<double> quantile_array(SPEC_SIZE);
     QVector<double> temp_array(SPEC_SIZE);
 
@@ -78,19 +81,24 @@ void Spectrum::get_int_spectrum(QVector<double> array) {
 
     int c = 0;
     for(size_t i = 0; i < SPEC_SIZE; i++) {
-        while(quantile_array[i]<temp_array[i]) {
+        while(quantile_array[c] <= temp_array[i]) {
             c +=1;
-            if(c == SPEC_SIZE) break;
+            if(c == SPEC_SIZE) {
+                reverse_array[i] = reverse_array[i-1];
+                break;
+            }
+            else {
+                reverse_array[i] = (uint16_t)(q[c]/dQ);
+            }
         }
-        if(c <= SPEC_SIZE - 1) reverse_array[i] = (uint16_t)(q[c]/dQ);
-        else reverse_array[i] = reverse_array[i-1];
+        c = 0;
     }
 }
 
 double Spectrum::get_max(QVector<double> array) {
     double iMax = array[0];
 
-    for (int i=1; i < SPEC_SIZE; i++)
+    for (int i=1; i < array.size(); i++)
     {
         if (array[i] > iMax) iMax = array[i];
     }
@@ -107,6 +115,17 @@ double Spectrum::get_square() {
     }
 
     return square*dQ;
+}
+
+double Spectrum::get_mean_charge() {
+    double mean_charge = 0;
+
+    for (int i=0; i < SPEC_SIZE; i++)
+    {
+        mean_charge += spectrum_array[i]*dQ*q[i];
+    }
+
+    return mean_charge;
 }
 
 void Spectrum::clear_array(){

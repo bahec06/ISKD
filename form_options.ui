@@ -65,7 +65,7 @@
     </property>
    </item>
   </widget>
-  <widget class="QLineEdit" name="pulse_duration_ledit">
+  <widget class="QLineEdit" name="pulse_duration_edit">
    <property name="geometry">
     <rect>
      <x>140</x>

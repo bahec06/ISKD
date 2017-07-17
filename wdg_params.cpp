@@ -8,15 +8,67 @@ wdg_params::wdg_params(QObject *parent) : QObject(parent)
     create_en_y_qcb();
     create_enrch_qcb();
     create_pu_u_qcb();
+    create_step_qpb();
 
     t_widget = new QTableWidget();
+    param_file = new xml_rw();
 
-    qcb_rmod_widget->setCurrentIndex(0);
-    r_mod = RBMK;
-    st_dist = CONST;
-    En_Y = yld_0;
-    Enrch = en2_0;
-    Pu_U = pu_u_0_000;
+    read_params_from_file();
+
+    connect(this, SIGNAL(update_table()), this, SLOT(slot_update()));
+}
+
+void wdg_params::read_params_from_file() {
+       QMap<QString, QString> map;
+
+       Si.clear();
+       TTi.clear();
+       map = param_file->read_opt_file(fname, "step");
+       for(int i = 0; i < map.size(); i ++) {
+       if(i < map.size()/2) {
+       Si << map.values().at(i).toDouble();
+       }
+       else {
+       TTi << map.values().at(i).toDouble();
+       }
+       }
+       cnt = 1 + map.size()/2;
+
+       map = param_file->read_opt_file(fname, "global");
+
+       int i_rmod = map["rmod"].toInt();
+       qcb_rmod_widget->setCurrentIndex(i_rmod);
+
+       int i_st_dist = map["st_dist"].toInt();
+       st_dist = (sig_time_dist)i_st_dist;
+
+       int i_sig_type = map["sig_type"].toInt();
+       s_type = (sig_type)i_sig_type;
+
+       TT = map["time"].toDouble();
+
+       S = map["S"].toDouble();
+       A = map["A"].toDouble();
+       T = map["T"].toDouble();
+       Kt = map["Kt"].toDouble();
+       R0 = map["R0"].toDouble();
+       R = map["R"].toDouble();
+       Rt = map["Rt"].toDouble();
+       En_Y = (yield_enum)(map["En_Y"].toInt());
+       Enrch = (enrichment_enum)(map["Enrch"].toInt());
+       Pu_U = (pu_u_enum)(map["Pu_U"].toInt());
+   }
+
+void wdg_params::create_step_qpb() {
+    qpb_add_step = new QPushButton();
+
+    qpb_add_step->setText("+");
+    connect(qpb_add_step, SIGNAL(pressed()), this, SLOT(add_new_step()));
+}
+
+void wdg_params::add_new_step() {
+    t_widget->insertRow(t_widget->rowCount()-1);
+    cnt++;
 }
 
 void wdg_params::create_en_y_qcb() {
@@ -140,7 +192,32 @@ void wdg_params::set_lin_signal()
 
 void wdg_params::set_step_signal()
 {
+    create_step_qpb();
+    t_widget->clear();
+    t_widget->setColumnCount(2);
 
+    m_TableHeader.clear();
+    QString sig_param;
+    if(s_type == REG) {
+        sig_param = reg_F;
+    }
+    else {
+        sig_param = rand_C;
+    }
+    m_TableHeader << sig_param << "Время теста, с";
+    t_widget->setHorizontalHeaderLabels(m_TableHeader);
+
+    t_widget->setRowCount(cnt);
+    t_widget->setSpan(cnt-1,0,1,2);
+    m_TableHeader.clear();
+    m_TableHeader << QString::number(cnt);
+
+    for(int i = 0; i < cnt-1; i ++) {
+        t_widget->setItem(i, 0, new QTableWidgetItem(QString::number(Si.at(i))));
+        t_widget->setItem(i, 1, new QTableWidgetItem(QString::number(TTi.at(i))));
+    }
+
+    t_widget->setCellWidget(cnt-1, 0, qpb_add_step);
 }
 
 void wdg_params::set_exp_signal()
@@ -248,6 +325,15 @@ void wdg_params::set_react_signal()
 }
 
 void wdg_params::read_params_from_table() {
+    QFile* file = new QFile(fname);
+    file->open(QIODevice::WriteOnly);
+    QXmlStreamWriter xml_strm(file);
+
+    xml_strm.setAutoFormatting(true);
+    xml_strm.writeStartDocument();
+    xml_strm.writeStartElement("params");
+    bool empty_cell = false;
+    QTableWidgetItem *itm;
     switch(st_dist){
         case REG:
             S = t_widget->item(0, 0)->text().toDouble();
@@ -259,7 +345,28 @@ void wdg_params::read_params_from_table() {
             TT = t_widget->item(2, 0)->text().toDouble();
             break;
         case STEP:
+            for(int i = 0; i < cnt-1; i++) {
+                itm = t_widget->item(i, 0);
+                if(itm == NULL) {
+                    empty_cell = true;
+                    break;
+                }
+                itm = t_widget->item(i, 1);
+                if(itm == NULL) {
+                    empty_cell = true;
+                    break;
+                }
+            }
 
+            if(!empty_cell) {
+                Si.clear();
+                TTi.clear();
+
+                for(int i = 0; i < cnt-1; i++) {
+                    Si << t_widget->item(i, 0)->text().toDouble();
+                    TTi << t_widget->item(i, 1)->text().toDouble();
+                }
+            }
             break;
         case EXP:
             S = t_widget->item(0, 0)->text().toDouble();
@@ -278,13 +385,13 @@ void wdg_params::read_params_from_table() {
             R = t_widget->item(3, 0)->text().toDouble();
             Rt = t_widget->item(4, 0)->text().toDouble();
             switch(r_mod) {
-                case 0:
+                case RBMK:
                     TT = t_widget->item(7, 0)->text().toDouble();
                     break;
-                case 1:
+                case VVR:
                     TT = t_widget->item(6, 0)->text().toDouble();
                     break;
-                case 2:
+                case BN:
                     TT = t_widget->item(5, 0)->text().toDouble();
                     break;
                 default:
@@ -294,6 +401,47 @@ void wdg_params::read_params_from_table() {
         default:
             break;
     }
+
+    QVector<QString> tag_value;
+    tag_value.clear();
+    tag_value << QString::number(r_mod);
+    tag_value << QString::number(st_dist);
+    tag_value << QString::number(s_type);
+    tag_value << QString::number(TT);
+    tag_value << QString::number(S);
+    tag_value << QString::number(A);
+    tag_value << QString::number(T);
+    tag_value << QString::number(Kt);
+    tag_value << QString::number(R0);
+    tag_value << QString::number(R);
+    tag_value << QString::number(Rt);
+    tag_value << QString::number(En_Y);
+    tag_value << QString::number(Enrch);
+    tag_value << QString::number(Pu_U);
+
+    xml_strm.writeStartElement("global");
+    for(int i = 0; i < global_tag.size(); i ++) {
+        xml_strm.writeTextElement(global_tag[i], tag_value[i]);
+    }
+
+    QVector<QString> step_tag;
+    step_tag.clear();
+    tag_value.clear();
+    for(int i = 0; i < Si.size(); i ++) {
+        step_tag << "S"+QString::number(i);
+        step_tag << "T"+QString::number(i);
+        tag_value << QString::number(Si[i]);
+        tag_value << QString::number(TTi[i]);
+    }
+
+    xml_strm.writeStartElement("step");
+    for(int i = 0; i < step_tag.size(); i ++) {
+        xml_strm.writeTextElement(step_tag[i], tag_value[i]);
+    }
+
+    xml_strm.writeEndElement();
+    xml_strm.writeEndDocument();
+    file->close();
 }
 
 void wdg_params::pulse_dist_change(int p_dist) {
@@ -339,6 +487,7 @@ void wdg_params::st_dist_change(int ext_st_dist) {
 }
 
 void wdg_params::slot_update() {
+    //read_params_from_file();
     t_widget->blockSignals(true);
     switch(st_dist) {
         case CONST:

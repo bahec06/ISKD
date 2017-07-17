@@ -5,7 +5,10 @@
 #include "QComboBox"
 #include "QLineEdit"
 #include "QTableWidget"
+#include "QPushButton"
+#include "QKeyEvent"
 #include "service_types.h"
+#include "xml_rw.h"
 
 enum sig_type {
     REG = 0,
@@ -36,6 +39,9 @@ public:
     void create_en_y_qcb();
     void create_enrch_qcb();
     void create_pu_u_qcb();
+    void create_step_qpb();
+
+    void read_params_from_file();
 
     QTableWidget *t_widget;
     sig_type s_type;
@@ -50,10 +56,16 @@ public:
     double R0;
     double R;
     double Rt;
+    int cnt;
     yield_enum En_Y;
     enrichment_enum Enrch;
     pu_u_enum Pu_U;
 
+    //Для ступенчатого воздействия
+    QVector<double> Si;
+    QVector<double> TTi;
+
+    xml_rw *param_file;
 private:
     const QString reg_F = "Частота, Гц";
     const QString reg_F0 = "Начальная частота, Гц";
@@ -72,6 +84,9 @@ private:
     const QString enrichment = "Обогащение, %";
     const QString s_pu_u = "Соотношение ядер Pu и U в топливе";
     const QString time = "Время теста, с";
+    const QString fname = "D:/Qt_repo/params.xml";
+
+    QVector<QString> global_tag = {"rmod", "st_dist", "sig_type", "time", "S", "A", "T", "Kt", "R0", "R", "Rt", "En_Y", "Enrch", "Pu_U"};
 
     QStringList m_TableHeader;
 
@@ -79,6 +94,7 @@ private:
     QComboBox *qcb_en_y_widget;
     QComboBox *qcb_enrch_widget;
     QComboBox *qcb_pu_u_widget;
+    QPushButton *qpb_add_step;
     QLineEdit *qle_widget;
 
     void init_table();
@@ -94,6 +110,7 @@ public slots:
     void enrch_update();
     void pu_u_update();
     void read_params_from_table();
+    void add_new_step();
 };
 
 #endif // WDG_PARAMS_H

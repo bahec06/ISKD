@@ -14,17 +14,14 @@ Q_OBJECT
 
 public:
     bgif_generator();
-
-    p_form pulse_form;
     uint16_t *spectrum;
+    uint16_t *pulse_form;
 
     double regular_freq;
     uint16_t mode;
     uint16_t pulse_threshold;
     bool big_frequency;
-    double noise_rms;
     double correction_gain;
-    bool noise_on;
     double mean_charge;
     double k0;
     double k1;
@@ -32,6 +29,8 @@ public:
     double k3;
 
     const double dt = 1e-8;
+    qt_ni_fpga fpga;
+    qt_ni_fgen fgen;
 
     uint64_t current_freq;
     bool stop_indicator;
@@ -39,12 +38,13 @@ public slots:
     void start_generation();
     void stop_generation();
 signals:
-    void send_frequency(uint64_t);
+    void send_frequency(quint64);
     void generation_finished();
+    void fgen_error();
+    void fpga_error();
+    void update_play(bool);
 private:
-    qt_ni_fpga fpga;
-    qt_ni_fgen fgen;
-    qt_ni_p2p p2p;
+    qt_ni_p2p *p2p;
 
     QFile read_file;
     QDataStream read_stream;
