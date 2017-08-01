@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     wdg_params.cpp \
     file_gen_thread.cpp \
     wr_file_loops.cpp \
-    xml_rw.cpp
+    xml_rw.cpp \
+    ../libs/ledindicator.cpp
 
 HEADERS  += mainwindow.h \
     pulseform.h \
@@ -48,7 +49,8 @@ HEADERS  += mainwindow.h \
     wdg_params.h \
     file_gen_thread.h \
     wr_file_loops.h \
-    xml_rw.h
+    xml_rw.h \
+    ../libs/ledindicator.h
 
 FORMS    += mainwindow.ui \
     form_options.ui \

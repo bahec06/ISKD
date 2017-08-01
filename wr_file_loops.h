@@ -38,6 +38,7 @@ public:
     void gen_rand_exp_var();
     void gen_rand_react();
 
+    void gen_reg_const();
     void gen_reg_lin();
     void gen_reg_exp();
     void gen_reg_exp_var();
@@ -49,9 +50,12 @@ private:
     double F_n;
 
     QFile mFile;
+    QFile nFile;
     QDataStream stream;
+    QDataStream low_stream;
     std::mt19937 generator;
     int16_t number[BUF_SIZE];
+    uint64_t *val;
     double dt;
     double F;
     double T;
@@ -59,8 +63,6 @@ private:
     double omeg_n;
     double omeg_p;
     uint64_t i, j, k;
-
-    QString filename;
 signals:
     loop_index(int);
 public slots:

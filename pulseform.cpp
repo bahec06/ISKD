@@ -21,7 +21,7 @@ void PulseForm::get_square_pulse(double Tu) {
 
     int bound = (int)(Tu/dt);
 
-    for(int i = 0; i<bound; i++) {
+    for(int i = 0; i < bound + 1; i++) {
         pulse[i] = 1;
     }
 

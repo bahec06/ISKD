@@ -274,23 +274,84 @@
      <number>24</number>
     </property>
    </widget>
-   <widget class="QLabel" name="play_label">
+   <widget class="LedIndicator" name="led1_widget" native="true">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>390</y>
-      <width>41</width>
-      <height>16</height>
+      <x>460</x>
+      <y>380</y>
+      <width>21</width>
+      <height>21</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>Cambria</family>
-      <pointsize>14</pointsize>
-     </font>
+   </widget>
+   <widget class="LedIndicator" name="led2_widget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>380</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
     </property>
-    <property name="text">
-     <string>IDLE</string>
+   </widget>
+   <widget class="LedIndicator" name="led3_widget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>500</x>
+      <y>380</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="LedIndicator" name="led4_widget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>380</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="LedIndicator" name="led5_widget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>380</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="LedIndicator" name="play_led" native="true">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>80</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="LedIndicator" name="led6_widget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>560</x>
+      <y>380</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="test_edit">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>380</y>
+      <width>113</width>
+      <height>20</height>
+     </rect>
     </property>
    </widget>
   </widget>
@@ -339,6 +400,14 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>LedIndicator</class>
+   <extends>QWidget</extends>
+   <header>ledindicator.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

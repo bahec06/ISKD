@@ -43,9 +43,14 @@ NiFpga_Status qt_ni_fpga::fpga_init(uint16_t *spectrum, uint16_t *pulse_form) {
         return fpga_stat;
     }
 
-    NiFpga_Bool s_conf = NiFpga_False;
-    while(!s_conf) {
-    fpga_stat = NiFpga_ReadBool(fpga_sess, NiFpga_fpga_main_IndicatorBool_s_conf, &s_conf);
+    fpga_stat = NiFpga_ReadU16(fpga_sess, NiFpga_fpga_main_IndicatorU16_state, &state);
+    if(fpga_stat != NiFpga_Status_Success) {
+        fpga_p2p_endpoint = 0;
+        return fpga_stat;
+    }
+
+    while(state != 0) {
+    fpga_stat = NiFpga_ReadU16(fpga_sess, NiFpga_fpga_main_IndicatorU16_state, &state);
         if(fpga_stat != NiFpga_Status_Success) {
             fpga_p2p_endpoint = 0;
             return fpga_stat;
@@ -64,94 +69,45 @@ NiFpga_Status qt_ni_fpga::fpga_init(uint16_t *spectrum, uint16_t *pulse_form) {
         return fpga_stat;
     }
 
-    NiFpga_Bool f_conf = NiFpga_False;
-    while(!f_conf) {
-    fpga_stat = NiFpga_ReadBool(fpga_sess, NiFpga_fpga_main_IndicatorBool_f_conf, &f_conf);
+    fpga_stat = NiFpga_ReadU16(fpga_sess, NiFpga_fpga_main_IndicatorU16_state, &state);
+    if(fpga_stat != NiFpga_Status_Success) {
+        fpga_p2p_endpoint = 0;
+        return fpga_stat;
+    }
+
+    while(state != 0) {
+    fpga_stat = NiFpga_ReadU16(fpga_sess, NiFpga_fpga_main_IndicatorU16_state, &state);
         if(fpga_stat != NiFpga_Status_Success) {
             fpga_p2p_endpoint = 0;
             return fpga_stat;
         }
     }
 
-    fpga_stat = NiFpga_WriteU16(fpga_sess, NiFpga_fpga_main_ControlU16_TMode, TMode); //Записать режим воспроизведения в FPGA (0 - регулярные импульсы постоянной частоты, 1 - случайные импульсы, 2 - регулярные импульсы переменной частоты)
+    fpga_stat = NiFpga_WriteFifoU16(fpga_sess, NiFpga_fpga_main_HostToTargetFifoU16_config_fifo, pulse_form, 0, 5000, &config_fifo_elements); //Записать форму импульса в FPGA
     if(fpga_stat != NiFpga_Status_Success) {
         fpga_p2p_endpoint = 0;
         return fpga_stat;
     }
 
-    fpga_stat = NiFpga_WriteU64(fpga_sess, NiFpga_fpga_main_ControlU64_Pulse_Coeff, PulseCoeff); //Записать коэффициент преобразования амплитуды импульса
+    fpga_stat = NiFpga_WriteBool(fpga_sess, NiFpga_fpga_main_ControlBool_random, Random); //Записать коэффициент преобразования амплитуды импульса
     if(fpga_stat != NiFpga_Status_Success) {
         fpga_p2p_endpoint = 0;
         return fpga_stat;
     }
 
-    fpga_stat = NiFpga_WriteBool(fpga_sess, NiFpga_fpga_main_ControlBool_Noise, Noise); //Вкл/выкл шум
+    fpga_stat = NiFpga_WriteU64(fpga_sess, NiFpga_fpga_main_ControlU64_pulse_coeff, PulseCoeff); //Записать коэффициент преобразования амплитуды импульса
     if(fpga_stat != NiFpga_Status_Success) {
         fpga_p2p_endpoint = 0;
         return fpga_stat;
     }
 
-    fpga_stat = NiFpga_WriteU16(fpga_sess, NiFpga_fpga_main_ControlU16_RMS, RMS); //RMS шума в кодах ЦАП
+    fpga_stat = NiFpga_WriteBool(fpga_sess, NiFpga_fpga_main_ControlBool_rms_on, Noise); //Вкл/выкл шум
     if(fpga_stat != NiFpga_Status_Success) {
         fpga_p2p_endpoint = 0;
         return fpga_stat;
     }
 
-    fpga_stat = NiFpga_WriteU64(fpga_sess, NiFpga_fpga_main_ControlU64_C1, C1); //Средний заряд в импульсе (FXP : 64, 0)
-    if(fpga_stat != NiFpga_Status_Success) {
-        fpga_p2p_endpoint = 0;
-        return fpga_stat;
-    }
-
-    fpga_stat = NiFpga_WriteU32(fpga_sess, NiFpga_fpga_main_ControlU32_Time, Time); //Количество тактов 1E-8 c, между чтениями буфера (обычно равно 10 для шага 1E-7 с), либо количество тактов между соседними импульсами для регулярных импульсов постоянной частоты
-    if(fpga_stat != NiFpga_Status_Success) {
-        fpga_p2p_endpoint = 0;
-        return fpga_stat;
-    }
-
-    fpga_stat = NiFpga_WriteBool(fpga_sess, NiFpga_fpga_main_ControlBool_Set_Wide, SetWide); //Флаг включения больших скоростей счёта
-    if(fpga_stat != NiFpga_Status_Success) {
-        fpga_p2p_endpoint = 0;
-        return fpga_stat;
-    }
-
-    fpga_stat = NiFpga_WriteI64(fpga_sess, NiFpga_fpga_main_ControlI64_K0, K0); //Коэффициент K0 полинома БФШТ (FXP : 48, 3)
-    if(fpga_stat != NiFpga_Status_Success) {
-        fpga_p2p_endpoint = 0;
-        return fpga_stat;
-    }
-
-    fpga_stat = NiFpga_WriteI64(fpga_sess, NiFpga_fpga_main_ControlI64_K1, K1); //Коэффициент K1 полинома БФШТ (FXP : 48, 3)
-    if(fpga_stat != NiFpga_Status_Success) {
-        fpga_p2p_endpoint = 0;
-        return fpga_stat;
-    }
-
-    fpga_stat = NiFpga_WriteI64(fpga_sess, NiFpga_fpga_main_ControlI64_K2, K2); //Коэффициент K2 полинома БФШТ (FXP : 48, 3)
-    if(fpga_stat != NiFpga_Status_Success) {
-        fpga_p2p_endpoint = 0;
-        return fpga_stat;
-    }
-
-    fpga_stat = NiFpga_WriteI64(fpga_sess, NiFpga_fpga_main_ControlI64_K3, K3); //Коэффициент K3 полинома БФШТ (FXP : 48, 3)
-    if(fpga_stat != NiFpga_Status_Success) {
-        fpga_p2p_endpoint = 0;
-        return fpga_stat;
-    }
-
-    fpga_stat = NiFpga_WriteBool(fpga_sess, NiFpga_fpga_main_ControlBool_Two_channels, NiFpga_True);
-    if(fpga_stat != NiFpga_Status_Success) {
-        fpga_p2p_endpoint = 0;
-        return fpga_stat;
-    }
-
-    fpga_stat = NiFpga_WriteU64(fpga_sess, NiFpga_fpga_main_ControlU64_Offset, 0);
-    if(fpga_stat != NiFpga_Status_Success) {
-        fpga_p2p_endpoint = 0;
-        return fpga_stat;
-    }
-
-    fpga_stat = NiFpga_WriteI64(fpga_sess, NiFpga_fpga_main_ControlU16_WideRMS, 18);
+    fpga_stat = NiFpga_WriteU16(fpga_sess, NiFpga_fpga_main_ControlU16_rms, RMS); //RMS шума в кодах ЦАП
     if(fpga_stat != NiFpga_Status_Success) {
         fpga_p2p_endpoint = 0;
         return fpga_stat;
@@ -178,38 +134,16 @@ NiFpga_Status qt_ni_fpga::fpga_init(uint16_t *spectrum, uint16_t *pulse_form) {
     return fpga_stat;
 }
 
-void qt_ni_fpga::fpga_reconfigure(const uint16_t *spectrum, const uint16_t *pulse_form) {
-    fpga_stat = NiFpga_WriteFifoU16(fpga_sess, NiFpga_fpga_main_HostToTargetFifoU16_config_fifo, spectrum, SPEC_SIZE, 5000, &config_fifo_elements);
-    if(fpga_stat != NiFpga_Status_Success) {
-        return;
-    }
-
-    fpga_stat = NiFpga_WriteBool(fpga_sess, NiFpga_fpga_main_ControlBool_configure_spectrum, 1);
-    if(fpga_stat != NiFpga_Status_Success) {
-        return;
-    }
-
-    fpga_stat = NiFpga_WriteFifoU16(fpga_sess, NiFpga_fpga_main_HostToTargetFifoU16_config_fifo, pulse_form, P_FORM_SIZE, 5000, &config_fifo_elements);
-    if(fpga_stat != NiFpga_Status_Success) {
-        return;
-    }
-
-    fpga_stat = NiFpga_WriteBool(fpga_sess, NiFpga_fpga_main_ControlBool_configure_form, 1);
-    if(fpga_stat != NiFpga_Status_Success) {
-        return;
-    }
-
-    fpga_stat = NiFpga_WriteU32(fpga_sess, NiFpga_fpga_main_ControlU64_Pulse_Coeff, PulseCoeff);
-    if(fpga_stat != NiFpga_Status_Success) {
-        return;
-    }
-}
-
 void qt_ni_fpga::fpga_close() {
     fpga_stat = NiFpga_StopFifo(fpga_sess, NiFpga_fpga_main_HostToTargetFifoI16_host_pnum_fifo);
     if(fpga_stat != NiFpga_Status_Success) {
         return;
     }
+
+//    fpga_stat = NiFpga_StopFifo(fpga_sess, NiFpga_fpga_main_HostToTargetFifoU64_const_fifo);
+//    if(fpga_stat != NiFpga_Status_Success) {
+//        return;
+//    }
 
     fpga_stat = NiFpga_StopFifo(fpga_sess, NiFpga_fpga_main_HostToTargetFifoU16_config_fifo);
     if(fpga_stat != NiFpga_Status_Success) {
@@ -236,15 +170,53 @@ void qt_ni_fpga::fpga_stop() {
 }
 
 void qt_ni_fpga::read_freq() {
-    fpga_stat = NiFpga_ReadU64(fpga_sess, NiFpga_fpga_main_IndicatorU64_frequency, &Frequency);
+    fpga_stat = NiFpga_ReadBool(fpga_sess, NiFpga_fpga_main_IndicatorBool_host_valid, &host_valid);
+    if(fpga_stat != NiFpga_Status_Success) {
+        return;
+    }
+
+    fpga_stat = NiFpga_ReadBool(fpga_sess, NiFpga_fpga_main_IndicatorBool_pnum_valid, &pnum_valid);
+    if(fpga_stat != NiFpga_Status_Success) {
+        return;
+    }
+
+    fpga_stat = NiFpga_ReadBool(fpga_sess, NiFpga_fpga_main_IndicatorBool_w_valid, &w_valid);
+    if(fpga_stat != NiFpga_Status_Success) {
+        return;
+    }
+
+    fpga_stat = NiFpga_ReadBool(fpga_sess, NiFpga_fpga_main_IndicatorBool_fir_valid, &fir_valid);
+    if(fpga_stat != NiFpga_Status_Success) {
+        return;
+    }
+
+    fpga_stat = NiFpga_ReadBool(fpga_sess, NiFpga_fpga_main_IndicatorBool_raw_signal_valid, &raw_signal_valid);
+    if(fpga_stat != NiFpga_Status_Success) {
+        return;
+    }
+
+    fpga_stat = NiFpga_ReadBool(fpga_sess, NiFpga_fpga_main_IndicatorBool_ch0_valid, &ch0_valid);
+    if(fpga_stat != NiFpga_Status_Success) {
+        return;
+    }
+
+    fpga_stat = NiFpga_ReadU16(fpga_sess, NiFpga_fpga_main_IndicatorU16_state, &state);
     if(fpga_stat != NiFpga_Status_Success) {
         return;
     }
 }
 
 void qt_ni_fpga::write_fifo(int16_t *buffer, size_t length, size_t *empty_elements){
-    fpga_stat = NiFpga_WriteFifoI16(fpga_sess, NiFpga_fpga_main_HostToTargetFifoU16_config_fifo, buffer, length, 5000, empty_elements);
+    fpga_stat = NiFpga_WriteFifoI16(fpga_sess, NiFpga_fpga_main_HostToTargetFifoI16_host_pnum_fifo, buffer, length, 5000, empty_elements);
     if(fpga_stat != NiFpga_Status_Success) {
         return;
     }
 }
+
+void qt_ni_fpga::write_const_fifo(uint64_t *buffer, size_t length, size_t *empty_elements){
+//    fpga_stat = NiFpga_WriteFifoU64(fpga_sess, NiFpga_fpga_main_HostToTargetFifoU64_const_fifo, buffer, length, 5000, empty_elements);
+//    if(fpga_stat != NiFpga_Status_Success) {
+//        return;
+//    }
+}
+

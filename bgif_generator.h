@@ -33,12 +33,13 @@ public:
     qt_ni_fgen fgen;
 
     uint64_t current_freq;
+    size_t wfifo_length;
     bool stop_indicator;
 public slots:
     void start_generation();
     void stop_generation();
 signals:
-    void send_frequency(quint64);
+    void start_read();
     void generation_finished();
     void fgen_error();
     void fpga_error();
@@ -47,10 +48,14 @@ private:
     qt_ni_p2p *p2p;
 
     QFile read_file;
+    QFile low_file;
     QDataStream read_stream;
+    QDataStream low_stream;
     size_t empty_elements;
-    size_t wfifo_length;
+    size_t const_empty_elements;
+    size_t cfifo_length;
     int16_t *data_to_fifo;
+    uint64_t *const_data;
 
     ViUInt32 fgen_p2p_endpoint;
     uint32_t fpga_p2p_endpoint;

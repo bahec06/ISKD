@@ -92,7 +92,7 @@ ViStatus qt_ni_fgen::fgen_init() {
         return error;
     }
     //Триггер начала воспроизведения при нулевом количестве элементов
-    error = niFgen_ConfigureP2PEndpointFullnessStartTrigger(fgen_vi, -1);
+    error = niFgen_ConfigureP2PEndpointFullnessStartTrigger(fgen_vi, 0);
     if(error != VI_SUCCESS) {
         niFgen_ErrorHandler(fgen_vi, error, errMsg);
         fgen_p2p_endpoint = 0;
@@ -105,6 +105,22 @@ ViStatus qt_ni_fgen::fgen_init() {
         fgen_p2p_endpoint = 0;
         return error;
     }
+    //New
+    /*
+    error = niFgen_SetAttributeViInt32(fgen_vi, "", NIFGEN_ATTR_IDLE_BEHAVIOR, NIFGEN_VAL_JUMP_TO_VALUE);
+    if(error != VI_SUCCESS) {
+        niFgen_ErrorHandler(fgen_vi, error, errMsg);
+        fgen_p2p_endpoint = 0;
+        return error;
+    }
+    error = niFgen_SetAttributeViInt32(fgen_vi, "", NIFGEN_ATTR_IDLE_VALUE, -32767);
+    if(error != VI_SUCCESS) {
+        niFgen_ErrorHandler(fgen_vi, error, errMsg);
+        fgen_p2p_endpoint = 0;
+        return error;
+    }
+    */
+    //
     //Фиксирование параметров
     error = niFgen_Commit(fgen_vi);
     if(error != VI_SUCCESS) {
@@ -141,6 +157,18 @@ ViStatus qt_ni_fgen::fgen_stop(){
     }
 
     error = niFgen_AbortGeneration(fgen_vi);
+    if(error != VI_SUCCESS) {
+        niFgen_ErrorHandler(fgen_vi, error, errMsg);
+        return error;
+    }
+
+    error = niFgen_ClearArbMemory(fgen_vi);
+    if(error != VI_SUCCESS) {
+        niFgen_ErrorHandler(fgen_vi, error, errMsg);
+        return error;
+    }
+
+    error = niFgen_reset(fgen_vi);
     if(error != VI_SUCCESS) {
         niFgen_ErrorHandler(fgen_vi, error, errMsg);
         return error;

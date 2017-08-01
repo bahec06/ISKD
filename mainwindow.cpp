@@ -34,6 +34,19 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&s_opt, SIGNAL(update_spectrum()), this, SLOT(update_param_table()));
     bgif = new bgif_generator;
     update_param_table();
+    ui->play_led->setLedSize(20);
+
+    tmr = new QTimer();
+    tmr->setInterval(1);
+    connect(tmr, SIGNAL(timeout()), this, SLOT(update_freq()));
+}
+
+void MainWindow::tmr_start() {
+    tmr->start();
+}
+
+void MainWindow::tmr_stop() {
+    tmr->stop();
 }
 
 MainWindow::~MainWindow()
@@ -104,8 +117,16 @@ void MainWindow::on_start_gen_file_but_clicked()
     thread->start();
 }
 
-void MainWindow::update_freq(quint64 freq) {
-    ui->freq_line->setText(QString::number(double(freq)*qPow(2, -16)));
+void MainWindow::update_freq() {
+    bgif->fpga.read_freq();
+    ui->led1_widget->setState(bgif->fpga.host_valid);
+    ui->led2_widget->setState(bgif->fpga.pnum_valid);
+    ui->led3_widget->setState(bgif->fpga.w_valid);
+    ui->led4_widget->setState(bgif->fpga.fir_valid);
+    ui->led5_widget->setState(bgif->fpga.raw_signal_valid);
+    ui->led6_widget->setState(bgif->fpga.ch0_valid);
+    ui->test_edit->setText(QString::number(bgif->fpga.state));
+    //ui->freq_line->setText(QString::number(double(bgif->fpga.Frequency)*qPow(2, -16)));
 }
 
 void MainWindow::update_bar(int a) {
@@ -130,7 +151,7 @@ void MainWindow::on_start_generation_clicked()
     strcpy(bgif->fgen.ni_fgen_resource, g_opt.fgen_name.toUtf8());
 
     bgif->correction_gain = f_opt.form.pulse_coeff;
-    bgif->mean_charge = f_opt.form.R*s_opt.mean_charge*s_opt.spec.get_max(f_opt.form.norm_pulse_form);
+    bgif->mean_charge = s_opt.mean_charge;
     if(ui->time_mode_box->currentIndex() == 1) {
         bgif->mode = 1;
     }
@@ -148,18 +169,19 @@ void MainWindow::on_start_generation_clicked()
     bgif->spectrum = s_opt.spec.reverse_array;
 
     bgif->moveToThread(thread);
-    connect(bgif, SIGNAL(update_play(bool)), this, SLOT(update_play_label(bool)));
     connect(bgif, SIGNAL(fpga_error()), this, SLOT(fpga_error_msg()));
     connect(bgif, SIGNAL(fgen_error()), this, SLOT(fgen_error_msg()));
     connect(thread, SIGNAL(started()), bgif, SLOT(start_generation())); //Запуск потока thread вызывает запуск генерации
     connect(bgif, SIGNAL(generation_finished()), thread, SLOT(terminate())); //По окончании генерации поток thread останавливается
-    connect(bgif, SIGNAL(send_frequency(quint64)),this,SLOT(update_freq(quint64))); //Обновление текущего значения частоты на индикаторе по сигналу send_frequency
-
+    connect(bgif, SIGNAL(start_read()), this, SLOT(tmr_start()));
+    connect(bgif, SIGNAL(generation_finished()), this, SLOT(tmr_stop()));
+    ui->play_led->setState(true);
     thread->start();
 }
 
 void MainWindow::on_stop_generation_clicked()
 {
+    ui->play_led->setState(false);
     bgif->stop_indicator = true;
 }
 
@@ -173,18 +195,6 @@ void MainWindow::update_param_table() {
     bgif->pulse_form = f_opt.form.pulse_form;
     bgif->correction_gain = f_opt.form.pulse_coeff;
     bgif->spectrum = s_opt.spec.reverse_array;
-}
-
-void MainWindow::update_play_label(bool stat) {
-    QString txt;
-
-    if(stat) {
-        txt = "PLAY";
-    }
-    else {
-        txt = "IDLE";
-    }
-    ui->play_label->setText(txt);
 }
 
 void MainWindow::fpga_error_msg() {

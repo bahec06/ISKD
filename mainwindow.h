@@ -11,6 +11,8 @@
 #include "bgif_generator.h"
 #include <QComboBox>
 #include "wdg_params.h"
+#include <QTimer>
+#include "ledindicator.h"
 
 namespace Ui {
 class MainWindow;
@@ -71,23 +73,25 @@ private:
     int mode_index;
     bgif_generator *bgif;
     file_gen_thread *f_thread;
+    QTimer *tmr;
 
 private slots:
      void on_options_triggered();
      void on_form_conf_triggered();
      void on_spec_conf_triggered();
      void on_start_gen_file_but_clicked();
-     void update_freq(quint64);
+     void update_freq();
      void wr_file_done();
      void update_bar(int);
      void on_start_generation_clicked();
      void on_stop_generation_clicked();
 
-     void update_play_label(bool);
      void fpga_error_msg();
      void fgen_error_msg();
 
      void update_param_table();
+     void tmr_start();
+     void tmr_stop();
 };
 
 #endif // MAINWINDOW_H

@@ -15,7 +15,7 @@ void file_gen_thread::process()
     file_gen->r0 = R0;
     file_gen->r = R;
     file_gen->time = TT;
-    file_gen->test = true;
+    file_gen->test = false;
     file_gen->Kt = Kt;
     file_gen->Ktt = 1;
     file_gen->rmod = r_mod;
@@ -27,6 +27,7 @@ void file_gen_thread::process()
     if(mode_index == 0) {
         switch (model_index) {
         case 0:
+            file_gen->gen_reg_const();
             break;
         case 1:
             file_gen->gen_reg_lin();

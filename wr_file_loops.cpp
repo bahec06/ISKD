@@ -8,22 +8,26 @@ wr_file_loops::wr_file_loops(QObject *parent) : QObject(parent)
     dt = 1e-7;
     F = 0;
     a_r = 0.05;
-    filename = "D:/Qt_repo/time_file.bin";
-    mFile.setFileName(filename);
+    mFile.setFileName("D:/Qt_repo/time_file.bin");
+    nFile.setFileName("D:/Qt_repo/ls_file.bin");
     stream.setDevice(&mFile);
+    low_stream.setDevice(&nFile);
     test = false;
+
+    val = (uint64_t *)malloc(8);
 }
 
 void wr_file_loops::gen_rand_const()
 {
     mFile.open(QFile::WriteOnly | QFile::Truncate);
+    nFile.open(QFile::WriteOnly | QFile::Truncate);
     if(test) {
         dt = 1e-4;
     }
     else {
         dt = 1e-7;
     }
-    rolls = uint64_t(time/dt + 1);
+    rolls = uint64_t(time/dt);
     std::poisson_distribution<int> distribution(F0*dt);
     for (i = 0; i < rolls; ++i) {
         number[i % BUF_SIZE] = distribution(generator);
@@ -31,8 +35,15 @@ void wr_file_loops::gen_rand_const()
             stream << F0;
         }
         else {
-            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeBytes((char *)number,BUF_SIZE*2);
+            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeRawData((char *)number,BUF_SIZE*2);
         }
+
+        //New
+        if(i % 1000 == 0) {
+            *val = uint64_t(F0*qPow(2,16));
+            low_stream.writeRawData((char *)val, 8);
+        }
+        //
 
         if((i%(rolls/100)) == 0) {
             emit loop_index(i*100/rolls);
@@ -40,86 +51,110 @@ void wr_file_loops::gen_rand_const()
     }
 
     if(!test) {
-        stream.writeBytes((char *)number, (i % (BUF_SIZE * 2)));
+        stream.writeRawData((char *)number, (i % (BUF_SIZE * 2)));
     }
 
     mFile.close();
+    nFile.close();
 }
 
 void wr_file_loops::gen_rand_lin()
 {
     mFile.open(QFile::WriteOnly | QFile::Truncate);
+    nFile.open(QFile::WriteOnly | QFile::Truncate);
     if(test) {
         dt = 1e-4;
     }
     else {
         dt = 1e-7;
     }
-    rolls = uint64_t(time/dt + 1);
+    rolls = uint64_t(time/dt);
     F = F0;
     for (i = 0; i < rolls; ++i) {
+        F = F0+i*dt*A;
         std::poisson_distribution<int> distribution(F*dt);
         number[i % BUF_SIZE] = distribution(generator);
         if(test) {
             stream << F;
         }
         else {
-            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeBytes((char *)number,BUF_SIZE*2);
+            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeRawData((char *)number,BUF_SIZE*2);
         }
-        F = F0+i*dt*A;
 
-        if((i%(rolls/100)) == 0) emit loop_index(i);
+        //New
+        if(i % 1000 == 0) {
+            *val = uint64_t(F*qPow(2,16));
+            low_stream.writeRawData((char *)val, 8);
+        }
+        //
+
+        if((i%(rolls/100)) == 0) {
+            emit loop_index(i*100/rolls);
+        }
     }
 
     if(!test) {
-        stream.writeBytes((char *)number, (i % (BUF_SIZE * 2)));
+        stream.writeRawData((char *)number, (i % (BUF_SIZE * 2)));
     }
 
     mFile.close();
+    nFile.close();
 }
 
 void wr_file_loops::gen_rand_exp()
 {
     mFile.open(QFile::WriteOnly | QFile::Truncate);
+    nFile.open(QFile::WriteOnly | QFile::Truncate);
     if(test) {
         dt = 1e-4;
     }
     else {
         dt = 1e-7;
     }
-    rolls = uint64_t(time/dt + 1);
+    rolls = uint64_t(time/dt);
     F = F0;
     for (i = 0; i < rolls; ++i) {
+        F = F0*qExp(i*dt/T0);
         std::poisson_distribution<int> distribution(F*dt);
         number[i % BUF_SIZE] = distribution(generator);
         if(test) {
             stream << F;
         }
         else {
-            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeBytes((char *)number,BUF_SIZE*2);
+            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeRawData((char *)number,BUF_SIZE*2);
         }
-        F = F0*qExp(i*dt/T0);
 
-        if((i%(rolls/100)) == 0) emit loop_index(i);
+        //New
+        if(i % 1000 == 0) {
+            *val = uint64_t(F*qPow(2,16));
+            low_stream.writeRawData((char *)val, 8);
+        }
+        //
+
+        if((i%(rolls/100)) == 0) {
+            emit loop_index(i*100/rolls);
+        }
     }
 
     if(!test) {
-        stream.writeBytes((char *)number, (i % (BUF_SIZE * 2)));
+        stream.writeRawData((char *)number, (i % (BUF_SIZE * 2)));
     }
 
     mFile.close();
+    nFile.close();
 }
 
 void wr_file_loops::gen_rand_exp_var()
 {
     mFile.open(QFile::WriteOnly | QFile::Truncate);
+    nFile.open(QFile::WriteOnly | QFile::Truncate);
     if(test) {
         dt = 1e-4;
     }
     else {
         dt = 1e-7;
     }
-    rolls = uint64_t(time/dt + 1);
+    rolls = uint64_t(time/dt);
     T = T0;
     F = F0;
     for (i = 0; i < rolls; ++i) {
@@ -129,32 +164,43 @@ void wr_file_loops::gen_rand_exp_var()
             stream << F;
         }
         else {
-            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeBytes((char *)number,BUF_SIZE*2);
+            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeRawData((char *)number,BUF_SIZE*2);
         }
         if(((fmod(i*dt, Ktt)) == 0) && (i != 0)) {
             T = T+Kt;
         }
-        F = F*qExp(dt/T);
 
-        if((i%(rolls/100)) == 0) emit loop_index(i);
+        //New
+        if(i % 1000 == 0) {
+            *val = uint64_t(F*qPow(2,16));
+            low_stream.writeRawData((char *)val, 8);
+        }
+        //
+
+        F = F*qExp(dt/T);
+        if((i%(rolls/100)) == 0) {
+            emit loop_index(i*100/rolls);
+        }
     }
 
     if(!test) {
-        stream.writeBytes((char *)number, (i % (BUF_SIZE * 2)));
+        stream.writeRawData((char *)number, (i % (BUF_SIZE * 2)));
     }
 
     mFile.close();
+    nFile.close();
 }
 
 void wr_file_loops::gen_rand_react() {
     mFile.open(QFile::WriteOnly | QFile::Truncate);
+    nFile.open(QFile::WriteOnly | QFile::Truncate);
     if(test) {
         dt = 1e-4;
     }
     else {
         dt = 1e-7;
     }
-    rolls = uint64_t(time/dt + 1);
+    rolls = uint64_t(time/dt);
     F_p = F0;
     F_n = 0;
     double r1 = 0;
@@ -169,8 +215,15 @@ void wr_file_loops::gen_rand_react() {
             stream << F_p;
         }
         else {
-            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeBytes((char *)number,BUF_SIZE*2);
+            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeRawData((char *)number,BUF_SIZE*2);
         }
+
+        //New
+        if(i % 1000 == 0) {
+            *val = uint64_t(F_p*qPow(2,16));
+            low_stream.writeRawData((char *)val, 8);
+        }
+        //
 
         r_const.sum_xe = 0;
         r_const.sum_b = 0;
@@ -197,30 +250,84 @@ void wr_file_loops::gen_rand_react() {
             r1 = r;
         }
 
-        if((i%(rolls/100)) == 0) emit loop_index(i);
+        if((i%(rolls/100)) == 0) {
+            emit loop_index(i*100/rolls);
+        }
     }
 
     if(!test) {
-        stream.writeBytes((char *)number, (i % (BUF_SIZE * 2)));
+        stream.writeRawData((char *)number, (i % (BUF_SIZE * 2)));
     }
 
     mFile.close();
+    nFile.close();
+}
+//Исправить!!!
+void wr_file_loops::gen_reg_const()
+{
+    mFile.open(QFile::WriteOnly | QFile::Truncate);
+    nFile.open(QFile::WriteOnly | QFile::Truncate);
+    if(test) {
+        dt = 1e-4;
+    }
+    else {
+        dt = 1e-7;
+    }
+    int step = (int)(1/(dt*F0));
+    rolls = uint64_t(1e7/step)*step;
+    for (i = 0; i < rolls; ++i) {
+        if (i%step == 0) {
+            number[i % BUF_SIZE] = 1;
+        }
+        else {
+            number[i % BUF_SIZE] = 0;
+        }
+
+        if(test) {
+            stream << F0;
+        }
+        else {
+            if ((i % BUF_SIZE) == (BUF_SIZE-1)) {
+                stream.writeRawData((char *)number,BUF_SIZE*2);
+            }
+        }
+
+        //New
+        if(i % 1000 == 0) {
+            *val = uint64_t(F0*qPow(2,16));
+            low_stream.writeRawData((char *)val, 8);
+        }
+        //
+
+        if((i%(rolls/100)) == 0) {
+            emit loop_index(i*100/rolls);
+        }
+    }
+
+    if(!test) {
+        stream.writeRawData((char *)number, (i % (BUF_SIZE * 2)));
+    }
+
+    mFile.close();
+    nFile.close();
 }
 
 void wr_file_loops::gen_reg_lin()
 {
     mFile.open(QFile::WriteOnly | QFile::Truncate);
+    nFile.open(QFile::WriteOnly | QFile::Truncate);
     if(test) {
         dt = 1e-4;
     }
     else {
         dt = 1e-7;
     }
-    rolls = uint64_t(time/dt + 1);
+    rolls = uint64_t(time/dt);
     int_F = 0;
     omeg_p = 0;
     F = F0;
-    for (i = 0; i<rolls; ++i) {
+    for (i = 0; i < rolls; ++i) {
+        F = F0 + A*dt*i;
         int_F = int_F + F*dt;
         omeg_n = 2*M_PI*int_F;
 
@@ -229,42 +336,55 @@ void wr_file_loops::gen_reg_lin()
         }
         else {
             number[i % BUF_SIZE] = 0;
-
         }
         omeg_p = omeg_n;
 
         if(test) {
             stream << F;
         }
-        else {
-            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeBytes((char *)number,BUF_SIZE*2);
-        }
-        F = F0 + A*dt*i;
 
-        if((i%(rolls/100)) == 0) emit loop_index(i);
+        else {
+            if ((i % BUF_SIZE) == (BUF_SIZE-1)) {
+                stream.writeRawData((char *)number,BUF_SIZE*2);
+            }
+        }
+
+        //New
+        if(i % 1000 == 0) {
+            *val = uint64_t(F*qPow(2,16));
+            low_stream.writeRawData((char *)val, 8);
+        }
+        //
+
+        if((i%(rolls/100)) == 0) {
+            emit loop_index(i*100/rolls);
+        }
     }
 
     if(!test) {
-        stream.writeBytes((char *)number, (i % (BUF_SIZE * 2)));
+        stream.writeRawData((char *)number, (i % (BUF_SIZE * 2)));
     }
 
     mFile.close();
+    nFile.close();
 }
 
 void wr_file_loops::gen_reg_exp()
 {
     mFile.open(QFile::WriteOnly | QFile::Truncate);
+    nFile.open(QFile::WriteOnly | QFile::Truncate);
     if(test) {
         dt = 1e-4;
     }
     else {
         dt = 1e-7;
     }
-    rolls = uint64_t(time/dt + 1);
+    rolls = uint64_t(time/dt);
     int_F = 0;
     omeg_p = 0;
     F = F0;
     for (i = 0; i<rolls; ++i) {
+        F = F0*qExp(i*dt/T0);
         int_F = int_F + F*dt;
         omeg_n = 2*M_PI*int_F;
         if (((fmod(omeg_p, 2 * M_PI) - M_PI) < 0) && ((fmod(omeg_n, 2 * M_PI) - M_PI)) > 0) {
@@ -280,30 +400,40 @@ void wr_file_loops::gen_reg_exp()
             stream << F;
         }
         else {
-            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeBytes((char *)number,BUF_SIZE*2);
+            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeRawData((char *)number,BUF_SIZE*2);
         }
-        F = F0*qExp(i*dt/T0);
 
-        if((i%(rolls/100)) == 0) emit loop_index(i);
+        //New
+        if(i % 1000 == 0) {
+            *val = uint64_t(F*qPow(2,16));
+            low_stream.writeRawData((char *)val, 8);
+        }
+        //
+
+        if((i%(rolls/100)) == 0) {
+            emit loop_index(i*100/rolls);
+        }
     }
 
     if(!test) {
-        stream.writeBytes((char *)number, (i % (BUF_SIZE * 2)));
+        stream.writeRawData((char *)number, (i % (BUF_SIZE * 2)));
     }
 
     mFile.close();
+    nFile.close();
 }
 
 void wr_file_loops::gen_reg_exp_var()
 {
     mFile.open(QFile::WriteOnly | QFile::Truncate);
+    nFile.open(QFile::WriteOnly | QFile::Truncate);
     if(test) {
         dt = 1e-4;
     }
     else {
         dt = 1e-7;
     }
-    rolls = uint64_t(time/dt + 1);
+    rolls = uint64_t(time/dt);
     int_F = 0;
     omeg_p = 0;
     T = T0;
@@ -324,26 +454,37 @@ void wr_file_loops::gen_reg_exp_var()
             stream << F;
         }
         else {
-            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeBytes((char *)number,BUF_SIZE*2);
+            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeRawData((char *)number,BUF_SIZE*2);
         }
         if(((fmod(i*dt, Ktt)) == 0) && (i != 0)) {
             T = T+Kt;
         }
-        F = F*qExp(dt/T);
 
-        if((i%(rolls/100)) == 0) emit loop_index(i);
+        //New
+        if(i % 1000 == 0) {
+            *val = uint64_t(F*qPow(2,16));
+            low_stream.writeRawData((char *)val, 8);
+        }
+        //
+
+        F = F*qExp(dt/T);
+        if((i%(rolls/100)) == 0) {
+            emit loop_index(i*100/rolls);
+        }
     }
 
     if(!test) {
-        stream.writeBytes((char *)number, (i % (BUF_SIZE * 2)));
+        stream.writeRawData((char *)number, (i % (BUF_SIZE * 2)));
     }
 
     mFile.close();
+    nFile.close();
 }
 
 void wr_file_loops::gen_reg_react()
 {
     mFile.open(QFile::WriteOnly | QFile::Truncate);
+    nFile.open(QFile::WriteOnly | QFile::Truncate);
     if(test) {
         dt = 1e-4;
         r_const.dt = dt;
@@ -352,7 +493,7 @@ void wr_file_loops::gen_reg_react()
         dt = 1e-7;
         r_const.dt = dt;
     }
-    rolls = uint64_t(time/dt + 1);
+    rolls = uint64_t(time/dt);
     F_p = F0;
     F_n = 0;
     double r1 = 0;
@@ -382,8 +523,15 @@ void wr_file_loops::gen_reg_react()
             stream << F_p;
         }
         else {
-            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeBytes((char *)number,BUF_SIZE*2);
+            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeRawData((char *)number,BUF_SIZE*2);
         }
+
+        //New
+        if(i % 1000 == 0) {
+            *val = uint64_t(F_p*qPow(2,16));
+            low_stream.writeRawData((char *)val, 8);
+        }
+        //
 
         for (int j = 0; j < r_const.N; j++) {
             r_const.sum_xe = r_const.sum_xe + (r_const.e[j] * r_const.x[j]);
@@ -404,12 +552,15 @@ void wr_file_loops::gen_reg_react()
             r1 = r;
         }
 
-        if((i%(rolls/100)) == 0) emit loop_index(i);
+        if((i%(rolls/100)) == 0) {
+            emit loop_index(i*100/rolls);
+        }
     }
 
     if(!test) {
-        stream.writeBytes((char *)number, (i % (BUF_SIZE * 2)));
+        stream.writeRawData((char *)number, (i % (BUF_SIZE * 2)));
     }
 
     mFile.close();
+    nFile.close();
 }

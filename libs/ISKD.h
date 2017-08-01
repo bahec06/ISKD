@@ -24,62 +24,40 @@
 /**
  * The signature of the FPGA bitfile.
  */
-static const char* const NiFpga_fpga_main_Signature = "01EBFC66A1B4A73B8ABA9D2E0E92D804";
+static const char* const NiFpga_fpga_main_Signature = "CD1BD265572963CCBA30B3A8BE96418A";
 
 typedef enum
 {
-   NiFpga_fpga_main_IndicatorBool_f_conf = 0xE,
-   NiFpga_fpga_main_IndicatorBool_s_conf = 0x22,
+   NiFpga_fpga_main_IndicatorBool_ch0_valid = 0x22,
+   NiFpga_fpga_main_IndicatorBool_fir_valid = 0x1A,
+   NiFpga_fpga_main_IndicatorBool_host_valid = 0xE,
+   NiFpga_fpga_main_IndicatorBool_pnum_valid = 0x12,
+   NiFpga_fpga_main_IndicatorBool_raw_signal_valid = 0x1E,
+   NiFpga_fpga_main_IndicatorBool_w_valid = 0x16,
 } NiFpga_fpga_main_IndicatorBool;
 
 typedef enum
 {
-   NiFpga_fpga_main_IndicatorU64_frequency = 0x24,
-} NiFpga_fpga_main_IndicatorU64;
+   NiFpga_fpga_main_IndicatorU16_state = 0x6,
+} NiFpga_fpga_main_IndicatorU16;
 
 typedef enum
 {
-   NiFpga_fpga_main_ControlBool_Const_current = 0x16,
-   NiFpga_fpga_main_ControlBool_Noise = 0x5A,
-   NiFpga_fpga_main_ControlBool_Play = 0x2E,
-   NiFpga_fpga_main_ControlBool_Set_Wide = 0x5E,
-   NiFpga_fpga_main_ControlBool_Two_channels = 0x1A,
-   NiFpga_fpga_main_ControlBool_configure_form = 0x6,
-   NiFpga_fpga_main_ControlBool_configure_spectrum = 0x2,
-   NiFpga_fpga_main_ControlBool_stop_vi = 0xA,
+   NiFpga_fpga_main_ControlBool_Play = 0x36,
+   NiFpga_fpga_main_ControlBool_configure_form = 0x2,
+   NiFpga_fpga_main_ControlBool_configure_spectrum = 0xA,
+   NiFpga_fpga_main_ControlBool_random = 0x26,
+   NiFpga_fpga_main_ControlBool_rms_on = 0x2E,
 } NiFpga_fpga_main_ControlBool;
 
 typedef enum
 {
-   NiFpga_fpga_main_ControlI16_Threshold = 0x2A,
-} NiFpga_fpga_main_ControlI16;
-
-typedef enum
-{
-   NiFpga_fpga_main_ControlU16_RMS = 0x36,
-   NiFpga_fpga_main_ControlU16_TMode = 0x32,
-   NiFpga_fpga_main_ControlU16_WideRMS = 0x1E,
+   NiFpga_fpga_main_ControlU16_rms = 0x2A,
 } NiFpga_fpga_main_ControlU16;
 
 typedef enum
 {
-   NiFpga_fpga_main_ControlU32_Time = 0x54,
-} NiFpga_fpga_main_ControlU32;
-
-typedef enum
-{
-   NiFpga_fpga_main_ControlI64_K0 = 0x50,
-   NiFpga_fpga_main_ControlI64_K1 = 0x4C,
-   NiFpga_fpga_main_ControlI64_K2 = 0x44,
-   NiFpga_fpga_main_ControlI64_K3 = 0x48,
-} NiFpga_fpga_main_ControlI64;
-
-typedef enum
-{
-   NiFpga_fpga_main_ControlU64_C1 = 0x38,
-   NiFpga_fpga_main_ControlU64_Const_freq = 0x10,
-   NiFpga_fpga_main_ControlU64_Offset = 0x40,
-   NiFpga_fpga_main_ControlU64_Pulse_Coeff = 0x3C,
+   NiFpga_fpga_main_ControlU64_pulse_coeff = 0x30,
 } NiFpga_fpga_main_ControlU64;
 
 typedef enum
