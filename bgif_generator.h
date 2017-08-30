@@ -18,7 +18,7 @@ public:
     uint16_t *pulse_form;
 
     double regular_freq;
-    uint16_t mode;
+    bool mode;
     uint16_t pulse_threshold;
     bool big_frequency;
     double correction_gain;
@@ -34,6 +34,7 @@ public:
 
     uint64_t current_freq;
     size_t wfifo_length;
+    size_t cfifo_length;
     bool stop_indicator;
 public slots:
     void start_generation();
@@ -43,7 +44,6 @@ signals:
     void generation_finished();
     void fgen_error();
     void fpga_error();
-    void update_play(bool);
 private:
     qt_ni_p2p *p2p;
 
@@ -53,14 +53,14 @@ private:
     QDataStream low_stream;
     size_t empty_elements;
     size_t const_empty_elements;
-    size_t cfifo_length;
     int16_t *data_to_fifo;
-    uint64_t *const_data;
+    int16_t *const_data;
 
     ViUInt32 fgen_p2p_endpoint;
     uint32_t fpga_p2p_endpoint;
 
     void init_fpga_params();
+    void preinit_generation();
 };
 
 #endif // BGIF_GENERATOR_H

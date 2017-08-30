@@ -89,3 +89,13 @@ void PulseForm::fpga_compatible_pulse(QVector<double> pulse) {
 
    pulse_coeff = (R*dQ/dU)/(square*2); //Двойка из-за 50 Ом, предположительно
 }
+
+double PulseForm::squared_pulse_area() {
+    double square = 0;
+
+    for(int i = 0; i < P_FORM_SIZE; i++) {
+        square += norm_pulse_form[i]*norm_pulse_form[i]*dt;
+    }
+
+    return square;
+}

@@ -31,18 +31,23 @@ public:
     react_constants r_const;
     bool test;
     uint64_t rolls;
+    double k0, k1, k2, k3, mean_q;
 
     void gen_rand_const();
     void gen_rand_lin();
+    void gen_rand_step(QVector<double> time_array, QVector<double> count_rate_array);
     void gen_rand_exp();
     void gen_rand_exp_var();
     void gen_rand_react();
 
     void gen_reg_const();
     void gen_reg_lin();
+    void gen_reg_step(QVector<double> time_array, QVector<double> count_rate_array);
     void gen_reg_exp();
     void gen_reg_exp_var();
     void gen_reg_react();
+
+    int16_t lin_current(double F);
 private:
     double lb;
     double bet;
@@ -55,7 +60,7 @@ private:
     QDataStream low_stream;
     std::mt19937 generator;
     int16_t number[BUF_SIZE];
-    uint64_t *val;
+    int16_t *val;
     double dt;
     double F;
     double T;

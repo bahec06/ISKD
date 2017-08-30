@@ -12,10 +12,12 @@ public:
     wr_file_loops *file_gen;
     int model_index, mode_index;
     double S, A, T, R0, R, TT, Kt, A_R;
+    double k0, k1, k2, k3, mean_q;
     enrichment_enum Enrch;
     yield_enum En_Y;
     pu_u_enum Pu_U;
     r_models r_mod;
+    QVector<double> t_array, cr_array;
 
 signals:
     void finished();

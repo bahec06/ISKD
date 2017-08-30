@@ -24,50 +24,47 @@
 /**
  * The signature of the FPGA bitfile.
  */
-static const char* const NiFpga_fpga_main_Signature = "CD1BD265572963CCBA30B3A8BE96418A";
+static const char* const NiFpga_fpga_main_Signature = "C479AC6BE9F0D5FA16A277DF99DCE509";
 
 typedef enum
 {
-   NiFpga_fpga_main_IndicatorBool_ch0_valid = 0x22,
-   NiFpga_fpga_main_IndicatorBool_fir_valid = 0x1A,
-   NiFpga_fpga_main_IndicatorBool_host_valid = 0xE,
-   NiFpga_fpga_main_IndicatorBool_pnum_valid = 0x12,
-   NiFpga_fpga_main_IndicatorBool_raw_signal_valid = 0x1E,
-   NiFpga_fpga_main_IndicatorBool_w_valid = 0x16,
-} NiFpga_fpga_main_IndicatorBool;
+   NiFpga_fpga_main_IndicatorI16_voltage_ch1 = 0x12,
+} NiFpga_fpga_main_IndicatorI16;
 
 typedef enum
 {
-   NiFpga_fpga_main_IndicatorU16_state = 0x6,
+   NiFpga_fpga_main_IndicatorU16_state = 0xA,
 } NiFpga_fpga_main_IndicatorU16;
 
 typedef enum
 {
-   NiFpga_fpga_main_ControlBool_Play = 0x36,
    NiFpga_fpga_main_ControlBool_configure_form = 0x2,
-   NiFpga_fpga_main_ControlBool_configure_spectrum = 0xA,
-   NiFpga_fpga_main_ControlBool_random = 0x26,
-   NiFpga_fpga_main_ControlBool_rms_on = 0x2E,
+   NiFpga_fpga_main_ControlBool_configure_spectrum = 0xE,
+   NiFpga_fpga_main_ControlBool_play = 0x26,
+   NiFpga_fpga_main_ControlBool_random = 0x16,
+   NiFpga_fpga_main_ControlBool_rms_on = 0x1E,
+   NiFpga_fpga_main_ControlBool_stop = 0x6,
 } NiFpga_fpga_main_ControlBool;
 
 typedef enum
 {
-   NiFpga_fpga_main_ControlU16_rms = 0x2A,
+   NiFpga_fpga_main_ControlU16_rms = 0x1A,
 } NiFpga_fpga_main_ControlU16;
 
 typedef enum
 {
-   NiFpga_fpga_main_ControlU64_pulse_coeff = 0x30,
+   NiFpga_fpga_main_ControlU64_pulse_coeff = 0x20,
 } NiFpga_fpga_main_ControlU64;
 
 typedef enum
 {
+   NiFpga_fpga_main_HostToTargetFifoI16_const_fifo = 2,
    NiFpga_fpga_main_HostToTargetFifoI16_host_pnum_fifo = 1,
 } NiFpga_fpga_main_HostToTargetFifoI16;
 
 typedef enum
 {
-   NiFpga_fpga_main_HostToTargetFifoU16_config_fifo = 2,
+   NiFpga_fpga_main_HostToTargetFifoU16_config_fifo = 3,
 } NiFpga_fpga_main_HostToTargetFifoU16;
 
 typedef enum

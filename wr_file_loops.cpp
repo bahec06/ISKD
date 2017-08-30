@@ -14,7 +14,22 @@ wr_file_loops::wr_file_loops(QObject *parent) : QObject(parent)
     low_stream.setDevice(&nFile);
     test = false;
 
-    val = (uint64_t *)malloc(8);
+    val = (int16_t *)malloc(2);
+}
+
+int16_t wr_file_loops::lin_current(double F) {
+    double P, U;
+
+    P = log10(F*mean_q);
+    if(P <= -4) {
+        U = 3.5+0.5*P;
+    }
+    else {
+        P = P+4;
+        U = k3*qPow(P,3) + k2*qPow(P,2) + k1*P + k0;
+    }
+
+    return (int16_t)(U/2.5*(qPow(2,15)-1));
 }
 
 void wr_file_loops::gen_rand_const()
@@ -40,8 +55,8 @@ void wr_file_loops::gen_rand_const()
 
         //New
         if(i % 1000 == 0) {
-            *val = uint64_t(F0*qPow(2,16));
-            low_stream.writeRawData((char *)val, 8);
+            *val = lin_current(F0);
+            low_stream.writeRawData((char *)val, 2);
         }
         //
 
@@ -83,13 +98,69 @@ void wr_file_loops::gen_rand_lin()
 
         //New
         if(i % 1000 == 0) {
-            *val = uint64_t(F*qPow(2,16));
-            low_stream.writeRawData((char *)val, 8);
+            *val = lin_current(F);
+            low_stream.writeRawData((char *)val, 2);
         }
         //
 
         if((i%(rolls/100)) == 0) {
             emit loop_index(i*100/rolls);
+        }
+    }
+
+    if(!test) {
+        stream.writeRawData((char *)number, (i % (BUF_SIZE * 2)));
+    }
+
+    mFile.close();
+    nFile.close();
+}
+
+void wr_file_loops::gen_rand_step(QVector<double> time_array, QVector<double> count_rate_array)
+{
+    mFile.open(QFile::WriteOnly | QFile::Truncate);
+    nFile.open(QFile::WriteOnly | QFile::Truncate);
+    if(test) {
+        dt = 1e-4;
+    }
+    else {
+        dt = 1e-7;
+    }
+
+    time = 0;
+    for(int j = 0; j < time_array.size(); j++) {
+        time += time_array[j];
+    }
+    rolls = uint64_t(time/dt);
+
+    int step_cnt = 1;
+    double current_time_limit = time_array[step_cnt];
+    F = count_rate_array[step_cnt];
+    for (i = 0; i < rolls; ++i) {
+        std::poisson_distribution<int> distribution(F*dt);
+        number[i % BUF_SIZE] = distribution(generator);
+        if(test) {
+            stream << F;
+        }
+        else {
+            if ((i % BUF_SIZE) == (BUF_SIZE-1)) stream.writeRawData((char *)number,BUF_SIZE*2);
+        }
+
+        //New
+        if(i % 1000 == 0) {
+            *val = lin_current(F);
+            low_stream.writeRawData((char *)val, 2);
+        }
+        //
+
+        if((i%(rolls/100)) == 0) {
+            emit loop_index(i*100/rolls);
+        }
+
+        if(i*dt > current_time_limit) {
+            step_cnt++;
+            current_time_limit += time_array[step_cnt];
+            F = count_rate_array[step_cnt];
         }
     }
 
@@ -126,8 +197,8 @@ void wr_file_loops::gen_rand_exp()
 
         //New
         if(i % 1000 == 0) {
-            *val = uint64_t(F*qPow(2,16));
-            low_stream.writeRawData((char *)val, 8);
+            *val = lin_current(F);
+            low_stream.writeRawData((char *)val, 2);
         }
         //
 
@@ -172,8 +243,8 @@ void wr_file_loops::gen_rand_exp_var()
 
         //New
         if(i % 1000 == 0) {
-            *val = uint64_t(F*qPow(2,16));
-            low_stream.writeRawData((char *)val, 8);
+            *val = lin_current(F);
+            low_stream.writeRawData((char *)val, 2);
         }
         //
 
@@ -220,8 +291,8 @@ void wr_file_loops::gen_rand_react() {
 
         //New
         if(i % 1000 == 0) {
-            *val = uint64_t(F_p*qPow(2,16));
-            low_stream.writeRawData((char *)val, 8);
+            *val = lin_current(F_p);
+            low_stream.writeRawData((char *)val, 2);
         }
         //
 
@@ -294,8 +365,8 @@ void wr_file_loops::gen_reg_const()
 
         //New
         if(i % 1000 == 0) {
-            *val = uint64_t(F0*qPow(2,16));
-            low_stream.writeRawData((char *)val, 8);
+            *val = 0;
+            low_stream.writeRawData((char *)val, 2);
         }
         //
 
@@ -342,7 +413,6 @@ void wr_file_loops::gen_reg_lin()
         if(test) {
             stream << F;
         }
-
         else {
             if ((i % BUF_SIZE) == (BUF_SIZE-1)) {
                 stream.writeRawData((char *)number,BUF_SIZE*2);
@@ -351,13 +421,83 @@ void wr_file_loops::gen_reg_lin()
 
         //New
         if(i % 1000 == 0) {
-            *val = uint64_t(F*qPow(2,16));
-            low_stream.writeRawData((char *)val, 8);
+            *val = 0;
+            low_stream.writeRawData((char *)val, 2);
         }
         //
 
         if((i%(rolls/100)) == 0) {
             emit loop_index(i*100/rolls);
+        }
+    }
+
+    if(!test) {
+        stream.writeRawData((char *)number, (i % (BUF_SIZE * 2)));
+    }
+
+    mFile.close();
+    nFile.close();
+}
+
+void wr_file_loops::gen_reg_step(QVector<double> time_array, QVector<double> count_rate_array)
+{
+    mFile.open(QFile::WriteOnly | QFile::Truncate);
+    nFile.open(QFile::WriteOnly | QFile::Truncate);
+
+    if(test) {
+        dt = 1e-4;
+    }
+    else {
+        dt = 1e-7;
+    }
+
+    time = 0;
+    for(int j = 0; j < time_array.size(); j++) {
+        time += time_array[j];
+    }
+
+    rolls = uint64_t(time/dt);
+    int step_cnt = 1;
+    double current_time_limit = time_array[step_cnt];
+    F = count_rate_array[step_cnt];
+    int_F = 0;
+    omeg_p = 0;
+    for (i = 0; i < rolls; ++i) {
+        int_F = int_F + F*dt;
+        omeg_n = 2*M_PI*int_F;
+        if (((fmod(omeg_p, 2 * M_PI) - M_PI) < 0) && ((fmod(omeg_n, 2 * M_PI) - M_PI)) > 0) {
+            number[i % BUF_SIZE] = 1;
+        }
+        else {
+            number[i % BUF_SIZE] = 0;
+        }
+
+        omeg_p = omeg_n;
+
+        if(test) {
+            stream << F;
+        }
+        else {
+            if ((i % BUF_SIZE) == (BUF_SIZE-1)) {
+                stream.writeRawData((char *)number,BUF_SIZE*2);
+            }
+        }
+
+        //New
+        if(i % 1000 == 0) {
+            *val = 0;
+            low_stream.writeRawData((char *)val, 2);
+        }
+        //
+
+        if((i%(rolls/100)) == 0) {
+            emit loop_index(i*100/rolls);
+        }
+
+        if(i*dt > current_time_limit) {
+            step_cnt++;
+            current_time_limit += time_array[step_cnt];
+            F = count_rate_array[step_cnt];
         }
     }
 
@@ -405,8 +545,8 @@ void wr_file_loops::gen_reg_exp()
 
         //New
         if(i % 1000 == 0) {
-            *val = uint64_t(F*qPow(2,16));
-            low_stream.writeRawData((char *)val, 8);
+            *val = 0;
+            low_stream.writeRawData((char *)val, 2);
         }
         //
 
@@ -462,8 +602,8 @@ void wr_file_loops::gen_reg_exp_var()
 
         //New
         if(i % 1000 == 0) {
-            *val = uint64_t(F*qPow(2,16));
-            low_stream.writeRawData((char *)val, 8);
+            *val = 0;
+            low_stream.writeRawData((char *)val, 2);
         }
         //
 
@@ -528,8 +668,8 @@ void wr_file_loops::gen_reg_react()
 
         //New
         if(i % 1000 == 0) {
-            *val = uint64_t(F_p*qPow(2,16));
-            low_stream.writeRawData((char *)val, 8);
+            *val = 0;
+            low_stream.writeRawData((char *)val, 2);
         }
         //
 

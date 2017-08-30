@@ -7,7 +7,7 @@
 class qt_ni_fgen
 {
 private:
-    QString script = "script myScript\nrepeat forever\nstream 1280\nend repeat\nend script";
+    QString script = "script myScript\nrepeat forever\nstream 65536\nend repeat\nend script";
     const ViChar * channels = "0,1";
     const ViChar * p2p_endp_chan = "FIFOEndpoint0";
     const ViReal64 sample_rate = 1e8;

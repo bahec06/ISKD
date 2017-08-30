@@ -21,15 +21,11 @@ public:
     //Кнопки
     NiFpga_Bool Noise;
     NiFpga_Bool Play;
-    NiFpga_Bool SetWide;
     NiFpga_Bool Two_Channels;
     NiFpga_Bool Random;
     //ControlU16
-    uint16_t CountVal1;
-    uint16_t CountVal2;
     uint16_t RMS;
     uint16_t TMode; //Режим воспроизведения сигнала
-    uint16_t WideRMS;
     uint16_t state;
     //ControlU32
     uint32_t Time;
@@ -42,28 +38,20 @@ public:
     uint64_t C1;
     uint64_t PulseCoeff;
     uint64_t Offset;
-    uint64_t Frequency;
     //IndicatorI16
-    int16_t test;
-
-    //Bool Indicators
-    NiFpga_Bool host_valid;
-    NiFpga_Bool pnum_valid;
-    NiFpga_Bool w_valid;
-    NiFpga_Bool raw_signal_valid;
-    NiFpga_Bool ch0_valid;
-    NiFpga_Bool fir_valid;
+    int16_t voltage_ch1;
 
     uint32_t fpga_p2p_endpoint;
     NiFpga_Status fpga_stat;
 
     qt_ni_fpga();
     NiFpga_Status fpga_init(uint16_t *spectrum, uint16_t *pulse_form);
-    void fpga_stop();
-    void fpga_close();
+    NiFpga_Status fpga_reinit_forms(uint16_t *spectrum, uint16_t *pulse_form);
+    NiFpga_Status fpga_stop();
+    NiFpga_Status fpga_close();
     void read_freq();
     void write_fifo(int16_t *buffer, size_t length, size_t *empty_elements);
-    void write_const_fifo(uint64_t *buffer, size_t length, size_t *empty_elements);
+    void write_const_fifo(int16_t *buffer, size_t length, size_t *empty_elements);
 };
 
 #endif // QT_NI_FPGA_H

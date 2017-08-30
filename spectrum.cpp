@@ -128,6 +128,17 @@ double Spectrum::get_mean_charge() {
     return mean_charge;
 }
 
+double Spectrum::get_square_mean_charge() {
+    double mean_charge = 0;
+
+    for (int i=0; i < SPEC_SIZE; i++)
+    {
+        mean_charge += spectrum_array[i]*dQ*q[i]*q[i];
+    }
+
+    return mean_charge;
+}
+
 void Spectrum::clear_array(){
     for(int i = 0; i < SPEC_SIZE; i++) {
         spectrum_array[i] = 0;

@@ -28,6 +28,7 @@ public:
     void get_gauss_pulse(double Tu);
     void get_exp_pulse(double Tu);
     void get_parabolic_pulse(double Tu);
+    double squared_pulse_area();
 };
 
 #endif // PULSEFORM_H

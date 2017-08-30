@@ -27,6 +27,7 @@ public:
     double get_max(QVector<double> array); //Получение максимального значения массива
     double get_square(); //Получение площади массива <spectrum_array>
     double get_mean_charge(); //Получение среднего значения заряда в спектре
+    double get_square_mean_charge(); //Получение среднего значения квадрата заряда в спектре
 };
 
 #endif // SPECTRUM_H
